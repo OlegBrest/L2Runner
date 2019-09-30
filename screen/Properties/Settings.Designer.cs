@@ -50,42 +50,6 @@ namespace L2Runner.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0, 0, 0, 0")]
-        public global::System.Drawing.Rectangle cpBar {
-            get {
-                return ((global::System.Drawing.Rectangle)(this["cpBar"]));
-            }
-            set {
-                this["cpBar"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0, 0, 0, 0")]
-        public global::System.Drawing.Rectangle hpBar {
-            get {
-                return ((global::System.Drawing.Rectangle)(this["hpBar"]));
-            }
-            set {
-                this["hpBar"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0, 0, 0, 0")]
-        public global::System.Drawing.Rectangle mpBar {
-            get {
-                return ((global::System.Drawing.Rectangle)(this["mpBar"]));
-            }
-            set {
-                this["mpBar"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0, 0, 0, 0")]
         public global::System.Drawing.Rectangle mobhpBar {
             get {
                 return ((global::System.Drawing.Rectangle)(this["mobhpBar"]));

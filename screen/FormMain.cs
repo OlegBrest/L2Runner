@@ -31,8 +31,8 @@ namespace L2Runner
         DataSet scripts_ds = new DataSet("scripts");
         DataTable scripts_dt = new DataTable("main_script");
         bool StartDrawRect = false;
-        DataSet clients_ds = new DataSet("Clients");
-        DataTable clients_dt = new DataTable("clients");
+        public DataSet clients_ds = new DataSet("Clients");
+        public DataTable clients_dt = new DataTable("clients");
         IntPtr mainwinptr = IntPtr.Zero;
 
         Bitmap pic1;
@@ -64,6 +64,7 @@ namespace L2Runner
                 selectedWindow = Properties.Settings.Default.LastWindow;
             }
 
+            #region clients load
             if (File.Exists("clients.xml"))
             {
                 try
@@ -94,7 +95,9 @@ namespace L2Runner
                 }
             }
             clients_dgv.DataSource = clients_dt;
+            #endregion
 
+            #region targets load
             if (File.Exists("l2runner.xml"))
             {
                 try
@@ -108,13 +111,23 @@ namespace L2Runner
                             dc.Caption = dgvc.HeaderText;
                             if (dgvc.GetType() == typeof(DataGridViewImageColumn)) dc.DataType = System.Type.GetType("System.Byte[]");
                             if (dgvc.Name == "correction_clmn") dc.DefaultValue = 10.0;
+                            if (dgvc.Name == "last_change")
+                            {
+                                dc.DataType = typeof(DateTime);
+                                dc.DefaultValue = DateTime.Now;
+                            }
+                            if (dgvc.Name == "idle")
+                            {
+                                dc.DataType = typeof(int);
+                                dc.DefaultValue = 0;
+                            }
                             targets_dt.Columns.Add(dc);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "78");
+                    MessageBox.Show(ex.Message, "125");
                 }
             }
             else
@@ -125,6 +138,11 @@ namespace L2Runner
                     dc.Caption = dgvc.HeaderText;
                     if (dgvc.GetType() == typeof(DataGridViewImageColumn)) dc.DataType = System.Type.GetType("System.Byte[]");
                     if (dgvc.Name == "correction_clmn") dc.DefaultValue = 10.0;
+                    if (dgvc.Name == "last_change")
+                    {
+                        dc.DataType = typeof(DateTime);
+                        dc.DefaultValue = DateTime.Now;
+                    }
                     targets_dt.Columns.Add(dc);
                 }
                 DataRow dr = targets_dt.NewRow();
@@ -141,7 +159,9 @@ namespace L2Runner
                 targets_dt.Rows.Add(dr);
             }
             targets_dgv.DataSource = targets_dt;
+            #endregion
 
+            #region script load
             if (File.Exists("l2runnerScript.xml"))
             {
                 try
@@ -179,6 +199,7 @@ namespace L2Runner
                             }
                             if (dgvc.Name == "nextuse_script_clmn")
                             {
+                                dc.DataType = typeof(DateTime);
                                 dc.DefaultValue = DateTime.Now;
                             }
                             if (dgvc.Name == "delay_script_clmn") dc.DefaultValue = 100;
@@ -226,6 +247,7 @@ namespace L2Runner
                 }
             }
             dgv_script.DataSource = scripts_dt;
+            #endregion
 
             CaptureWindows(mainwinptr);
             savetimer.AutoReset = true;
@@ -285,22 +307,24 @@ namespace L2Runner
             {
                 toolStripStatusLabel.Text = "";
                 buttonTracking.ForeColor = Color.Red;
+                buttonTracking.Text = "Stop Boting";
                 try
                 {
                     await Tracking();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "234");
+                    MessageBox.Show(ex.Message, "310");
                 }
             }
             else
             {
                 buttonTracking.ForeColor = Color.Black;
+                buttonTracking.Text = "Start Boting";
             }
         }
 
-        void showActiveWindow()
+        private void showActiveWindow()
         {
             panel1.BackColor = Color.Gray;
             if (selectedWindow == 1)
@@ -357,19 +381,25 @@ namespace L2Runner
 
                             // calculate cp/ho/mp bars
 
-                            for (int rws = 0; rws < targets_dgv.Rows.Count; rws++)
+                            for (int rws = 0; rws < targets_dt.Rows.Count; rws++)
                             {
                                 Rectangle rcngl = RectFromString(targets_dt.Rows[rws]["coord_clmn"].ToString());
-                                targets_dgv.Rows[rws].Cells["Current_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
-                                //targets_dt.Rows[rws]["Current_value_clmn"] = getPartOfBMP(bmp, rcngl);
+                                //targets_dgv.Rows[rws].Cells["Current_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
+                                ImageConverter converter = new ImageConverter();
+                                targets_dt.Rows[rws]["Current_value_clmn"] = (byte[])converter.ConvertTo(getPartOfBMP(bmp, rcngl), typeof(byte[]));
                                 int[,] idealArr = null;
                                 int[,] currArr = null;
                                 ByteArray2darr((byte[])targets_dt.Rows[rws]["ideal_value_clmn"], rcngl, ref idealArr);
                                 ByteArray2darr((byte[])targets_dt.Rows[rws]["Current_value_clmn"], rcngl, ref currArr);
                                 int err = Convert.ToInt32(targets_dt.Rows[rws]["correction_clmn"].ToString());
-                                targets_dgv.Rows[rws].Cells["percentage_clmn"].Value = calcPercentComparisson(idealArr, currArr, err);
-                                //targets_dt.Rows[rws]["percentage_clmn"] = calcPercentComparisson(idealArr, currArr, err);
-
+                                int compresult = calcPercentComparisson(idealArr, currArr, err);
+                                //targets_dgv.Rows[rws].Cells["percentage_clmn"].Value = compresult;
+                                if (!targets_dt.Rows[rws]["percentage_clmn"].ToString().Equals(compresult.ToString()))
+                                {
+                                    targets_dt.Rows[rws]["percentage_clmn"] = compresult;
+                                    targets_dt.Rows[rws]["last_change"] = DateTime.Now;
+                                }
+                                targets_dt.Rows[rws]["idle"] = (DateTime.Now -Convert.ToDateTime(targets_dt.Rows[rws]["last_change"])).TotalMilliseconds;
                             }
                         }
                         catch (Exception ex)
@@ -395,7 +425,18 @@ namespace L2Runner
             for (int row = 0; row < rowsCount; row++)
             {
                 DataRow dr = scripts_dt.Rows[row];
-                string expression = "name_clmn = '" + dr["target_script_clmn"].ToString() + "' and percentage_clmn " + dr["parameter_script_clmn"] + " " + dr["criteria_script_clmn"];
+                string [] criteries = dr["criteria_script_clmn"].ToString().Split(';');
+                string perc_crit = ""; 
+                string time_crit = "";
+                if (criteries.Length > 0 )
+                {
+                    if (criteries[0]!="") perc_crit = " and percentage_clmn "+ criteries[0];
+                }
+                if (criteries.Length > 1)
+                {
+                    if (criteries[1] != "") time_crit = String.Format(" and idle {1}", DateTime.Now,criteries[1]);
+                }
+                string expression = String.Format("name_clmn = '{0}' {1} {2}", dr["target_script_clmn"].ToString() ,perc_crit , time_crit );
                 DataRow[] targetRow = targets_dt.Select(expression);
                 if (targetRow.Length > 0) dr["result_script_clmn"] = true;
                 else dr["result_script_clmn"] = false;
@@ -621,6 +662,7 @@ namespace L2Runner
 
         private void getArrayFromBMP(Bitmap _bmp, Rectangle _rect, ref int[,] _array)
         {
+            byte[,,] bytearr = BitmapToByteRgb(_bmp);
             if (_bmp != null)
             {
                 Bitmap b = _bmp;
@@ -631,11 +673,25 @@ namespace L2Runner
                     int arrayY = 0;
                     for (int y = _rect.Y; y < (_rect.Y + _rect.Height); y++)
                     {
-                        _array[arrayX, arrayY] = b.GetPixel(x, y).ToArgb();
+                        _array[arrayX, arrayY] = bytearr[0, y, x] << 8; 
+                        _array[arrayX, arrayY] = bytearr[1, y, x] << 8;
+                        _array[arrayX, arrayY] = bytearr[2, y, x] << 8;
+                        //_array[arrayX, arrayY] = b.GetPixel(x, y).ToArgb();
                         arrayY++;
                     }
                     arrayX++;
                 }
+                /*
+                for (int x = _rect.X; x < (_rect.X + _rect.Width); x++)
+                {
+                    int arrayY = 0;
+                    for (int y = _rect.Y; y < (_rect.Y + _rect.Height); y++)
+                    {
+                        _array[arrayX, arrayY] = b.GetPixel(x, y).ToArgb();
+                        arrayY++;
+                    }
+                    arrayX++;
+                }*/
             }
         }
 
@@ -646,9 +702,30 @@ namespace L2Runner
             {
                 bmp = new Bitmap(Bitmap.FromStream(ms));
             };
+            byte[,,] bytearr = BitmapToByteRgb(bmp);
             _array = new int[bmp.Width, bmp.Height];
             int arrayX = 0;
             for (int x = 0; x < _rect.Width; x++)
+            {
+                int arrayY = 0;
+                for (int y = 0; y < _rect.Height; y++)
+                {
+                    try
+                    {
+                        _array[arrayX, arrayY] = bytearr[0, y, x] << 8; //bmp.GetPixel(x, y).ToArgb();
+                        _array[arrayX, arrayY] = bytearr[1, y, x] << 8;
+                        _array[arrayX, arrayY] = bytearr[2, y, x] << 8;
+                        arrayY++;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "550");
+                    }
+                }
+                arrayX++;
+            }
+
+            /*for (int x = 0; x < _rect.Width; x++)
             {
                 int arrayY = 0;
                 for (int y = 0; y < _rect.Height; y++)
@@ -664,7 +741,39 @@ namespace L2Runner
                     }
                 }
                 arrayX++;
+            }*/
+        }
+
+        public unsafe static byte[,,] BitmapToByteRgb(Bitmap bmp)
+        {
+            int width = bmp.Width,
+                height = bmp.Height;
+            byte[,,] res = new byte[3, height, width];
+            BitmapData bd = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly,
+                PixelFormat.Format24bppRgb);
+            try
+            {
+                byte* curpos;
+                fixed (byte* _res = res)
+                {
+                    byte* _r = _res, _g = _res + width * height, _b = _res + 2 * width * height;
+                    for (int h = 0; h < height; h++)
+                    {
+                        curpos = ((byte*)bd.Scan0) + h * bd.Stride;
+                        for (int w = 0; w < width; w++)
+                        {
+                            *_b = *(curpos++); ++_b;
+                            *_g = *(curpos++); ++_g;
+                            *_r = *(curpos++); ++_r;
+                        }
+                    }
+                }
             }
+            finally
+            {
+                bmp.UnlockBits(bd);
+            }
+            return res;
         }
 
         private int calcPercentComparisson(int[,] _ideal, int[,] _current, int? errorValue = 10)
@@ -709,11 +818,14 @@ namespace L2Runner
             return result;
         }
 
-        private void other_targets_dgv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        private void targets_dgv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            /*  if ((targets_dgv.DataSource != null) && (other_dataloaded))
+             /* if (targets_dgv.DataSource != null)
               {
-                  targets_ds.WriteXml("l2runner.xml", XmlWriteMode.WriteSchema);
+                if (targets_dgv.Columns[e.ColumnIndex].Name == "percentage_clmn")
+                {
+                    targets_dgv.Rows[e.RowIndex].Cells["last_change"].Value = DateTime.Now;
+                }
               }*/
         }
 
@@ -787,8 +899,10 @@ namespace L2Runner
         private void dgv_script_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             DataGridViewColumn dgvc = dgv_script.Columns[e.ColumnIndex];
-            if (dgvc.Name == "target_script_clmn")
+            if (dgvc.Name == "action_script_clmn")
             {
+                L2KeyBoardForm kb = new L2KeyBoardForm();
+                DialogResult dlgres = kb.ShowDialog(this);
             }
         }
 

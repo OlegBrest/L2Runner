@@ -37,5 +37,14 @@ namespace L2Runner
 
         [DllImport("user32.dll")]
         public static extern int SendMessage(IntPtr hWnd, int Msg, uint wParam, uint lParam);
+
+        [DllImport("user32.dll")]
+        public static extern bool PostMessage(IntPtr hWnd, UInt32 Msg, int wParam, int lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern bool PostMessage(IntPtr hWnd, int Msg, char wParam, int lParam);
+
+        [DllImport("user32.dll")]
+        public static extern short GetAsyncKeyState(int keys);
     }
 }
