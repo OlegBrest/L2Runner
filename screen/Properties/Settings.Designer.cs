@@ -58,5 +58,17 @@ namespace L2Runner.Properties {
                 this["mobhpBar"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("l2")]
+        public string filte_string {
+            get {
+                return ((string)(this["filte_string"]));
+            }
+            set {
+                this["filte_string"] = value;
+            }
+        }
     }
 }

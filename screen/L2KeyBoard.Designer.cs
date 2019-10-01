@@ -68,6 +68,7 @@
             this.button24 = new System.Windows.Forms.Button();
             this.testmode_bttn = new System.Windows.Forms.Button();
             this.clients = new System.Windows.Forms.ComboBox();
+            this.autotest_chkbx = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // bttn_f1
@@ -204,7 +205,7 @@
             // 
             // bttn_ok
             // 
-            this.bttn_ok.Location = new System.Drawing.Point(555, 118);
+            this.bttn_ok.Location = new System.Drawing.Point(555, 127);
             this.bttn_ok.Name = "bttn_ok";
             this.bttn_ok.Size = new System.Drawing.Size(130, 30);
             this.bttn_ok.TabIndex = 1;
@@ -486,7 +487,7 @@
             // 
             // testmode_bttn
             // 
-            this.testmode_bttn.Location = new System.Drawing.Point(555, 77);
+            this.testmode_bttn.Location = new System.Drawing.Point(555, 91);
             this.testmode_bttn.Name = "testmode_bttn";
             this.testmode_bttn.Size = new System.Drawing.Size(130, 30);
             this.testmode_bttn.TabIndex = 1;
@@ -502,11 +503,24 @@
             this.clients.Size = new System.Drawing.Size(130, 21);
             this.clients.TabIndex = 3;
             // 
+            // autotest_chkbx
+            // 
+            this.autotest_chkbx.AutoSize = true;
+            this.autotest_chkbx.Enabled = false;
+            this.autotest_chkbx.Location = new System.Drawing.Point(555, 68);
+            this.autotest_chkbx.Name = "autotest_chkbx";
+            this.autotest_chkbx.Size = new System.Drawing.Size(64, 17);
+            this.autotest_chkbx.TabIndex = 4;
+            this.autotest_chkbx.Text = "autotest";
+            this.autotest_chkbx.UseVisualStyleBackColor = true;
+            this.autotest_chkbx.Visible = false;
+            // 
             // L2KeyBoardForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(697, 160);
+            this.Controls.Add(this.autotest_chkbx);
             this.Controls.Add(this.clients);
             this.Controls.Add(this.result_txtbx);
             this.Controls.Add(this.testmode_bttn);
@@ -597,5 +611,6 @@
         private System.Windows.Forms.Button button24;
         private System.Windows.Forms.Button testmode_bttn;
         private System.Windows.Forms.ComboBox clients;
+        private System.Windows.Forms.CheckBox autotest_chkbx;
     }
 }

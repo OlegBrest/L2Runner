@@ -58,11 +58,12 @@
     <Compile Include="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="KeyBoard.cs">
+    <Compile Include="KeyCodes.cs" />
+    <Compile Include="L2KeyBoard.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="KeyBoard.Designer.cs">
-      <DependentUpon>KeyBoard.cs</DependentUpon>
+    <Compile Include="L2KeyBoard.Designer.cs">
+      <DependentUpon>L2KeyBoard.cs</DependentUpon>
     </Compile>
     <Compile Include="MyDGV.cs">
       <SubType>Component</SubType>
@@ -76,8 +77,8 @@
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="KeyBoard.resx">
-      <DependentUpon>KeyBoard.cs</DependentUpon>
+    <EmbeddedResource Include="L2KeyBoard.resx">
+      <DependentUpon>L2KeyBoard.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

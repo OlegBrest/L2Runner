@@ -76,6 +76,7 @@ namespace L2Runner
                         {
                             DataColumn dc = new DataColumn(dgvc.Name);
                             dc.Caption = dgvc.HeaderText;
+                            if (dgvc.Name == "winhdr_clients_dgv") dc.DataType = typeof(Int64);
                             clients_dt.Columns.Add(dc);
                         }
                     }
@@ -91,6 +92,7 @@ namespace L2Runner
                 {
                     DataColumn dc = new DataColumn(dgvc.Name);
                     dc.Caption = dgvc.HeaderText;
+                    if (dgvc.Name == "winhdr_clients_dgv") dc.DataType = typeof(Int64);
                     clients_dt.Columns.Add(dc);
                 }
             }
@@ -277,21 +279,24 @@ namespace L2Runner
                 User32.GetWindowRect(intPtr, ref rect);
                 int width = rect.right - rect.left;
                 int height = rect.bottom - rect.top;
-                var bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-                Graphics graphics = Graphics.FromImage(bmp);
-                graphics.CopyFromScreen(rect.left, rect.top, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
-                // bmp.Save("test_" + i.ToString() + ".png", ImageFormat.Png);
-                pictureBoxMain.Image = bmp;
-                switch (i)
+                if ((width > 0) && (height > 0))
                 {
-                    case 1:
-                        pic1 = bmp;
-                        pictureBox1.Image = pic1;
-                        break;
+                    var bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                    Graphics graphics = Graphics.FromImage(bmp);
+                    graphics.CopyFromScreen(rect.left, rect.top, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
+                    // bmp.Save("test_" + i.ToString() + ".png", ImageFormat.Png);
+                    pictureBoxMain.Image = bmp;
+                    switch (i)
+                    {
+                        case 1:
+                            pic1 = bmp;
+                            pictureBox1.Image = pic1;
+                            break;
+                    }
+                    this.Show();
+                    this.Activate();
+                    showActiveWindow();
                 }
-                this.Show();
-                this.Activate();
-                showActiveWindow();
             }
         }
 
@@ -399,7 +404,7 @@ namespace L2Runner
                                     targets_dt.Rows[rws]["percentage_clmn"] = compresult;
                                     targets_dt.Rows[rws]["last_change"] = DateTime.Now;
                                 }
-                                targets_dt.Rows[rws]["idle"] = (DateTime.Now -Convert.ToDateTime(targets_dt.Rows[rws]["last_change"])).TotalMilliseconds;
+                                targets_dt.Rows[rws]["idle"] = (DateTime.Now - Convert.ToDateTime(targets_dt.Rows[rws]["last_change"])).TotalMilliseconds;
                             }
                         }
                         catch (Exception ex)
@@ -425,18 +430,18 @@ namespace L2Runner
             for (int row = 0; row < rowsCount; row++)
             {
                 DataRow dr = scripts_dt.Rows[row];
-                string [] criteries = dr["criteria_script_clmn"].ToString().Split(';');
-                string perc_crit = ""; 
+                string[] criteries = dr["criteria_script_clmn"].ToString().Split(';');
+                string perc_crit = "";
                 string time_crit = "";
-                if (criteries.Length > 0 )
+                if (criteries.Length > 0)
                 {
-                    if (criteries[0]!="") perc_crit = " and percentage_clmn "+ criteries[0];
+                    if (criteries[0] != "") perc_crit = " and percentage_clmn " + criteries[0];
                 }
                 if (criteries.Length > 1)
                 {
-                    if (criteries[1] != "") time_crit = String.Format(" and idle {1}", DateTime.Now,criteries[1]);
+                    if (criteries[1] != "") time_crit = String.Format(" and idle {1}", DateTime.Now, criteries[1]);
                 }
-                string expression = String.Format("name_clmn = '{0}' {1} {2}", dr["target_script_clmn"].ToString() ,perc_crit , time_crit );
+                string expression = String.Format("name_clmn = '{0}' {1} {2}", dr["target_script_clmn"].ToString(), perc_crit, time_crit);
                 DataRow[] targetRow = targets_dt.Select(expression);
                 if (targetRow.Length > 0) dr["result_script_clmn"] = true;
                 else dr["result_script_clmn"] = false;
@@ -500,22 +505,30 @@ namespace L2Runner
             //IntPtr l2ptr = l2proc.MainWindowHandle;
             string window = row["window_script_clmn"].ToString();
             DataRow drs = clients_dt.Select("winname_clients_dgv = '" + window + "'")[0];
-            IntPtr l2ptr = new IntPtr(Convert.ToInt64(drs["winhdr_clients_dgv"].ToString())); 
-            ushort action = WM_SYSKEYDOWN;
-            uint lparam = (0x01 << 28);
+            IntPtr l2ptr = new IntPtr(Convert.ToInt64(drs["winhdr_clients_dgv"].ToString()));
+            ushort WM_KEYDOWN = 0x0100;
+            ushort WM_KEYUP = 0x0101;
+            uint downlparam = 0x00090001;
+            uint uplparam = 0xC0090001;
             if (act == "R")
             {
                 int value = r.Next(0, buttons.Length);
+                getLparams(ref downlparam, ref uplparam, buttons[value]);
                 ushort key = (ushort)((Keys)Enum.Parse(typeof(Keys), buttons[value]));
-                User32.SendMessage(l2ptr, action, key, lparam);
+                User32.PostMessage(l2ptr, WM_KEYDOWN, key, downlparam);
+                Thread.Sleep(120);
+                User32.PostMessage(l2ptr, WM_KEYUP, key, uplparam);
                 Logging(DateTime.Now + " sending " + buttons[value] + " to " + l2ptr);
             }
             if (act == "")
             {
                 foreach (string bttn in buttons)
                 {
+                    getLparams(ref downlparam,ref uplparam, bttn);
                     ushort key = (ushort)((Keys)Enum.Parse(typeof(Keys), bttn));
-                    User32.SendMessage(l2ptr, action, key, lparam);
+                    User32.PostMessage(l2ptr, WM_KEYDOWN, key, downlparam);
+                    Thread.Sleep(120);
+                    User32.PostMessage(l2ptr, WM_KEYUP, key, uplparam);
                     await Task.Delay(r.Next(100, 250));
                     //Thread.Sleep(r.Next(100, 250));
                     Logging(DateTime.Now + " sending " + bttn + " to " + l2ptr);
@@ -524,9 +537,20 @@ namespace L2Runner
             row["nextuse_script_clmn"] = DateTime.Now.AddMilliseconds(Convert.ToDouble(row["delay_script_clmn"].ToString()));
         }
 
+        public void getLparams(ref uint _down, ref uint _up, string _key)
+        {
+            _down = 0;
+            _down += (KeyCodes.getCode(_key) << 16);
+            _down += 0x01;
+            _up = 0xC0;
+            _up = _up << 24;
+            _up += (KeyCodes.getCode(_key) << 16);
+            _up += 0x01;
+        }
+
         private Rectangle RectFromString(string _recStr)
         {
-            Rectangle result = new Rectangle(0,0,0,0);
+            Rectangle result = new Rectangle(0, 0, 0, 0);
             if (_recStr != "")
             {
                 string strres = _recStr.Replace("{", "");
@@ -673,7 +697,7 @@ namespace L2Runner
                     int arrayY = 0;
                     for (int y = _rect.Y; y < (_rect.Y + _rect.Height); y++)
                     {
-                        _array[arrayX, arrayY] = bytearr[0, y, x] << 8; 
+                        _array[arrayX, arrayY] = bytearr[0, y, x] << 8;
                         _array[arrayX, arrayY] = bytearr[1, y, x] << 8;
                         _array[arrayX, arrayY] = bytearr[2, y, x] << 8;
                         //_array[arrayX, arrayY] = b.GetPixel(x, y).ToArgb();
@@ -744,7 +768,7 @@ namespace L2Runner
             }*/
         }
 
-        public unsafe static byte[,,] BitmapToByteRgb(Bitmap bmp)
+        public static unsafe byte[,,] BitmapToByteRgb(Bitmap bmp)
         {
             int width = bmp.Width,
                 height = bmp.Height;
@@ -820,13 +844,13 @@ namespace L2Runner
 
         private void targets_dgv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-             /* if (targets_dgv.DataSource != null)
-              {
-                if (targets_dgv.Columns[e.ColumnIndex].Name == "percentage_clmn")
-                {
-                    targets_dgv.Rows[e.RowIndex].Cells["last_change"].Value = DateTime.Now;
-                }
-              }*/
+            /* if (targets_dgv.DataSource != null)
+             {
+               if (targets_dgv.Columns[e.ColumnIndex].Name == "percentage_clmn")
+               {
+                   targets_dgv.Rows[e.RowIndex].Cells["last_change"].Value = DateTime.Now;
+               }
+             }*/
         }
 
         private void other_targets_dgv_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -853,26 +877,30 @@ namespace L2Runner
             Bitmap bmp = ((Bitmap)pictureBoxMain.Image);
             string coords = targets_dgv.CurrentRow.Cells["coord_clmn"].Value.ToString();
             Rectangle rcngl = RectFromString(coords);
-            if ((bmp!=null) && (rcngl!=new Rectangle(0,0,0,0))) targets_dgv.CurrentRow.Cells["ideal_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
+            if ((bmp != null) && (rcngl != new Rectangle(0, 0, 0, 0))) targets_dgv.CurrentRow.Cells["ideal_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
             //targets_dt.Rows[rws]["ideal_value_clmn"] = getPartOfBMP(bmp, rcngl);
-            
+
         }
 
         private void find_windows_bttn_Click(object sender, EventArgs e)
         {
             var items = Process.GetProcessesByName(ProcessName);
+            foreach (DataRow dr in clients_dt.Rows)
+            {
+                dr["winhdr_clients_dgv"] = 0;
+            }
             foreach (Process prc in items)
             {
                 DataRow[] dtrws = clients_dt.Select("winname_clients_dgv = '" + prc.MainWindowTitle + "'");
                 if (dtrws.Length > 0)
                 {
-                    foreach (DataGridViewRow dgvr in clients_dgv.Rows)
+                    foreach (DataRow dr in clients_dt.Rows)
                     {
-                        if (dgvr.Cells["winname_clients_dgv"].Value != null)
+                        if (dr["winname_clients_dgv"] != null)
                         {
-                            if (dgvr.Cells["winname_clients_dgv"].Value.ToString().Equals(prc.MainWindowTitle.ToString()))
+                            if (dr["winname_clients_dgv"].ToString().Equals(prc.MainWindowTitle.ToString()))
                             {
-                                dgvr.Cells["winhdr_clients_dgv"].Value = prc.MainWindowHandle.ToInt32().ToString();
+                                dr["winhdr_clients_dgv"] = prc.MainWindowHandle.ToInt32().ToString();
                             }
                         }
                     }
@@ -902,7 +930,12 @@ namespace L2Runner
             if (dgvc.Name == "action_script_clmn")
             {
                 L2KeyBoardForm kb = new L2KeyBoardForm();
+                this.Hide();
                 DialogResult dlgres = kb.ShowDialog(this);
+                if (dlgres != DialogResult.Ignore)
+                {
+                    this.Show();
+                }
             }
         }
 
@@ -917,8 +950,12 @@ namespace L2Runner
         {
             if (clients_dgv.Rows[e.RowIndex].Cells["winhdr_clients_dgv"].Value != null)
             {
-                if (clients_dgv.Rows[e.RowIndex].Cells["winhdr_clients_dgv"].Value.ToString()!="")
-                    mainwinptr = new IntPtr(Convert.ToInt64(clients_dgv.Rows[e.RowIndex].Cells["winhdr_clients_dgv"].Value.ToString()));
+                try
+                {
+                    if (clients_dgv.Rows[e.RowIndex].Cells["winhdr_clients_dgv"].Value.ToString() != "")
+                        mainwinptr = new IntPtr(Convert.ToInt64(clients_dgv.Rows[e.RowIndex].Cells["winhdr_clients_dgv"].Value.ToString()));
+                }
+                catch { };
             }
         }
 
@@ -932,6 +969,13 @@ namespace L2Runner
         private void Savetimer_Disposed(object sender, EventArgs e)
         {
             timerDisposed = true;
+        }
+
+        private void filter_txtbx_TextChanged(object sender, EventArgs e)
+        {
+            ProcessName = filter_txtbx.Text;
+            Properties.Settings.Default.filte_string = filter_txtbx.Text;
+            Properties.Settings.Default.Save();
         }
     }
 }
