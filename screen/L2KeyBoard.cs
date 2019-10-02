@@ -44,13 +44,37 @@ namespace L2Runner
 
                 ushort key = (ushort)((Keys)Enum.Parse(typeof(Keys), bttn.Tag.ToString()));
 
-                 User32.PostMessage(l2ptr, WM_KEYDOWN, key, downlparam);
-                 Thread.Sleep(220);
-                 User32.PostMessage(l2ptr, WM_KEYUP, key, uplparam);
+                User32.PostMessage(l2ptr, WM_KEYDOWN, key, downlparam);
+                Thread.Sleep(220);
+                User32.PostMessage(l2ptr, WM_KEYUP, key, uplparam);
                 /* User32.SendMessage(l2ptr, WM_KEYDOWN, key, startlparam);
                  Thread.Sleep(120);
                  User32.SendMessage(l2ptr, WM_KEYUP, key, endlparam);*/
-                result_txtbx.Text = ((Keys)Enum.Parse(typeof(Keys), bttn.Tag.ToString())).ToString()+"---"+ key;
+                result_txtbx.Text = ((Keys)Enum.Parse(typeof(Keys), bttn.Tag.ToString())).ToString() + "---" + key;
+            }
+            else
+            {
+                string FullStringBttns = result_txtbx.Text;
+                if (FullStringBttns.Contains("|")) FullStringBttns = FullStringBttns.Split('|')[1];
+                if (bttn.ForeColor == Color.Black)
+                {
+                    bttn.ForeColor = Color.Red;
+                    if (FullStringBttns == "")
+                    {
+                        result_txtbx.Text += bttn.Tag.ToString();
+                    }
+                    else
+                    {
+                        result_txtbx.Text +=(","+bttn.Tag.ToString());
+                    }
+                }
+                else
+                {
+                    bttn.ForeColor = Color.Black;
+                    result_txtbx.Text = result_txtbx.Text.Replace(bttn.Tag.ToString()+",", "");
+                    result_txtbx.Text = result_txtbx.Text.Replace("," +bttn.Tag.ToString(), "");
+                    if (!result_txtbx.Text.Contains(",")) result_txtbx.Text = result_txtbx.Text.Replace(bttn.Tag.ToString(), "");
+                }
             }
         }
 
@@ -112,5 +136,9 @@ namespace L2Runner
             User32.PostMessage(l2ptr, WM_KEYUP, (ushort)Keys.D8, lparam);
         }
 
+        private void bttn_ok_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.OK;
+        }
     }
 }

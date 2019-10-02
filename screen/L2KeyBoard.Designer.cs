@@ -73,6 +73,7 @@
             // 
             // bttn_f1
             // 
+            this.bttn_f1.ForeColor = System.Drawing.Color.Black;
             this.bttn_f1.Location = new System.Drawing.Point(12, 116);
             this.bttn_f1.Name = "bttn_f1";
             this.bttn_f1.Size = new System.Drawing.Size(37, 30);
@@ -84,6 +85,7 @@
             // 
             // bttn_f2
             // 
+            this.bttn_f2.ForeColor = System.Drawing.Color.Black;
             this.bttn_f2.Location = new System.Drawing.Point(55, 116);
             this.bttn_f2.Name = "bttn_f2";
             this.bttn_f2.Size = new System.Drawing.Size(37, 30);
@@ -95,6 +97,7 @@
             // 
             // bttn_f3
             // 
+            this.bttn_f3.ForeColor = System.Drawing.Color.Black;
             this.bttn_f3.Location = new System.Drawing.Point(98, 116);
             this.bttn_f3.Name = "bttn_f3";
             this.bttn_f3.Size = new System.Drawing.Size(37, 30);
@@ -106,6 +109,7 @@
             // 
             // bttn_f4
             // 
+            this.bttn_f4.ForeColor = System.Drawing.Color.Black;
             this.bttn_f4.Location = new System.Drawing.Point(141, 116);
             this.bttn_f4.Name = "bttn_f4";
             this.bttn_f4.Size = new System.Drawing.Size(37, 30);
@@ -117,6 +121,7 @@
             // 
             // bttn_f5
             // 
+            this.bttn_f5.ForeColor = System.Drawing.Color.Black;
             this.bttn_f5.Location = new System.Drawing.Point(198, 116);
             this.bttn_f5.Name = "bttn_f5";
             this.bttn_f5.Size = new System.Drawing.Size(37, 30);
@@ -128,6 +133,7 @@
             // 
             // bttn_f6
             // 
+            this.bttn_f6.ForeColor = System.Drawing.Color.Black;
             this.bttn_f6.Location = new System.Drawing.Point(241, 116);
             this.bttn_f6.Name = "bttn_f6";
             this.bttn_f6.Size = new System.Drawing.Size(37, 30);
@@ -139,6 +145,7 @@
             // 
             // bttn_f7
             // 
+            this.bttn_f7.ForeColor = System.Drawing.Color.Black;
             this.bttn_f7.Location = new System.Drawing.Point(284, 116);
             this.bttn_f7.Name = "bttn_f7";
             this.bttn_f7.Size = new System.Drawing.Size(37, 30);
@@ -150,6 +157,7 @@
             // 
             // bttn_f8
             // 
+            this.bttn_f8.ForeColor = System.Drawing.Color.Black;
             this.bttn_f8.Location = new System.Drawing.Point(327, 116);
             this.bttn_f8.Name = "bttn_f8";
             this.bttn_f8.Size = new System.Drawing.Size(37, 30);
@@ -161,6 +169,7 @@
             // 
             // bttn_f9
             // 
+            this.bttn_f9.ForeColor = System.Drawing.Color.Black;
             this.bttn_f9.Location = new System.Drawing.Point(383, 116);
             this.bttn_f9.Name = "bttn_f9";
             this.bttn_f9.Size = new System.Drawing.Size(37, 30);
@@ -172,6 +181,7 @@
             // 
             // bttn_f10
             // 
+            this.bttn_f10.ForeColor = System.Drawing.Color.Black;
             this.bttn_f10.Location = new System.Drawing.Point(426, 116);
             this.bttn_f10.Name = "bttn_f10";
             this.bttn_f10.Size = new System.Drawing.Size(37, 30);
@@ -183,6 +193,7 @@
             // 
             // bttn_f11
             // 
+            this.bttn_f11.ForeColor = System.Drawing.Color.Black;
             this.bttn_f11.Location = new System.Drawing.Point(469, 116);
             this.bttn_f11.Name = "bttn_f11";
             this.bttn_f11.Size = new System.Drawing.Size(37, 30);
@@ -194,6 +205,7 @@
             // 
             // bttn_f12
             // 
+            this.bttn_f12.ForeColor = System.Drawing.Color.Black;
             this.bttn_f12.Location = new System.Drawing.Point(512, 116);
             this.bttn_f12.Name = "bttn_f12";
             this.bttn_f12.Size = new System.Drawing.Size(37, 30);
@@ -211,18 +223,19 @@
             this.bttn_ok.TabIndex = 1;
             this.bttn_ok.Text = "OK";
             this.bttn_ok.UseVisualStyleBackColor = true;
+            this.bttn_ok.Click += new System.EventHandler(this.bttn_ok_Click);
             // 
             // result_txtbx
             // 
             this.result_txtbx.Location = new System.Drawing.Point(12, 9);
             this.result_txtbx.Multiline = true;
             this.result_txtbx.Name = "result_txtbx";
-            this.result_txtbx.ReadOnly = true;
             this.result_txtbx.Size = new System.Drawing.Size(673, 26);
             this.result_txtbx.TabIndex = 2;
             // 
             // bttn_1
             // 
+            this.bttn_1.ForeColor = System.Drawing.Color.Black;
             this.bttn_1.Location = new System.Drawing.Point(12, 77);
             this.bttn_1.Name = "bttn_1";
             this.bttn_1.Size = new System.Drawing.Size(37, 30);
@@ -234,6 +247,7 @@
             // 
             // bttn_2
             // 
+            this.bttn_2.ForeColor = System.Drawing.Color.Black;
             this.bttn_2.Location = new System.Drawing.Point(55, 77);
             this.bttn_2.Name = "bttn_2";
             this.bttn_2.Size = new System.Drawing.Size(37, 30);
@@ -245,6 +259,7 @@
             // 
             // bttn_3
             // 
+            this.bttn_3.ForeColor = System.Drawing.Color.Black;
             this.bttn_3.Location = new System.Drawing.Point(98, 77);
             this.bttn_3.Name = "bttn_3";
             this.bttn_3.Size = new System.Drawing.Size(37, 30);
@@ -256,6 +271,7 @@
             // 
             // bttn_4
             // 
+            this.bttn_4.ForeColor = System.Drawing.Color.Black;
             this.bttn_4.Location = new System.Drawing.Point(141, 77);
             this.bttn_4.Name = "bttn_4";
             this.bttn_4.Size = new System.Drawing.Size(37, 30);
@@ -267,6 +283,7 @@
             // 
             // bttn_5
             // 
+            this.bttn_5.ForeColor = System.Drawing.Color.Black;
             this.bttn_5.Location = new System.Drawing.Point(198, 77);
             this.bttn_5.Name = "bttn_5";
             this.bttn_5.Size = new System.Drawing.Size(37, 30);
@@ -278,6 +295,7 @@
             // 
             // bttn_6
             // 
+            this.bttn_6.ForeColor = System.Drawing.Color.Black;
             this.bttn_6.Location = new System.Drawing.Point(241, 77);
             this.bttn_6.Name = "bttn_6";
             this.bttn_6.Size = new System.Drawing.Size(37, 30);
@@ -289,6 +307,7 @@
             // 
             // bttn_7
             // 
+            this.bttn_7.ForeColor = System.Drawing.Color.Black;
             this.bttn_7.Location = new System.Drawing.Point(284, 77);
             this.bttn_7.Name = "bttn_7";
             this.bttn_7.Size = new System.Drawing.Size(37, 30);
@@ -300,6 +319,7 @@
             // 
             // bttn_8
             // 
+            this.bttn_8.ForeColor = System.Drawing.Color.Black;
             this.bttn_8.Location = new System.Drawing.Point(327, 77);
             this.bttn_8.Name = "bttn_8";
             this.bttn_8.Size = new System.Drawing.Size(37, 30);
@@ -311,6 +331,7 @@
             // 
             // bttn_9
             // 
+            this.bttn_9.ForeColor = System.Drawing.Color.Black;
             this.bttn_9.Location = new System.Drawing.Point(383, 77);
             this.bttn_9.Name = "bttn_9";
             this.bttn_9.Size = new System.Drawing.Size(37, 30);
@@ -322,6 +343,7 @@
             // 
             // bttn_10
             // 
+            this.bttn_10.ForeColor = System.Drawing.Color.Black;
             this.bttn_10.Location = new System.Drawing.Point(426, 77);
             this.bttn_10.Name = "bttn_10";
             this.bttn_10.Size = new System.Drawing.Size(37, 30);
@@ -333,6 +355,7 @@
             // 
             // bttn_11
             // 
+            this.bttn_11.ForeColor = System.Drawing.Color.Black;
             this.bttn_11.Location = new System.Drawing.Point(469, 77);
             this.bttn_11.Name = "bttn_11";
             this.bttn_11.Size = new System.Drawing.Size(37, 30);
@@ -344,6 +367,7 @@
             // 
             // bttn_12
             // 
+            this.bttn_12.ForeColor = System.Drawing.Color.Black;
             this.bttn_12.Location = new System.Drawing.Point(512, 77);
             this.bttn_12.Name = "bttn_12";
             this.bttn_12.Size = new System.Drawing.Size(37, 30);
@@ -355,6 +379,7 @@
             // 
             // button13
             // 
+            this.button13.ForeColor = System.Drawing.Color.Black;
             this.button13.Location = new System.Drawing.Point(12, 41);
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(37, 30);
@@ -366,6 +391,7 @@
             // 
             // button14
             // 
+            this.button14.ForeColor = System.Drawing.Color.Black;
             this.button14.Location = new System.Drawing.Point(55, 41);
             this.button14.Name = "button14";
             this.button14.Size = new System.Drawing.Size(37, 30);
@@ -377,6 +403,7 @@
             // 
             // button15
             // 
+            this.button15.ForeColor = System.Drawing.Color.Black;
             this.button15.Location = new System.Drawing.Point(98, 41);
             this.button15.Name = "button15";
             this.button15.Size = new System.Drawing.Size(37, 30);
@@ -388,6 +415,7 @@
             // 
             // button16
             // 
+            this.button16.ForeColor = System.Drawing.Color.Black;
             this.button16.Location = new System.Drawing.Point(141, 41);
             this.button16.Name = "button16";
             this.button16.Size = new System.Drawing.Size(37, 30);
@@ -399,6 +427,7 @@
             // 
             // button17
             // 
+            this.button17.ForeColor = System.Drawing.Color.Black;
             this.button17.Location = new System.Drawing.Point(198, 41);
             this.button17.Name = "button17";
             this.button17.Size = new System.Drawing.Size(37, 30);
@@ -410,6 +439,7 @@
             // 
             // button18
             // 
+            this.button18.ForeColor = System.Drawing.Color.Black;
             this.button18.Location = new System.Drawing.Point(241, 41);
             this.button18.Name = "button18";
             this.button18.Size = new System.Drawing.Size(37, 30);
@@ -421,6 +451,7 @@
             // 
             // button19
             // 
+            this.button19.ForeColor = System.Drawing.Color.Black;
             this.button19.Location = new System.Drawing.Point(284, 41);
             this.button19.Name = "button19";
             this.button19.Size = new System.Drawing.Size(37, 30);
@@ -432,6 +463,7 @@
             // 
             // button20
             // 
+            this.button20.ForeColor = System.Drawing.Color.Black;
             this.button20.Location = new System.Drawing.Point(327, 41);
             this.button20.Name = "button20";
             this.button20.Size = new System.Drawing.Size(37, 30);
@@ -443,6 +475,7 @@
             // 
             // button21
             // 
+            this.button21.ForeColor = System.Drawing.Color.Black;
             this.button21.Location = new System.Drawing.Point(383, 41);
             this.button21.Name = "button21";
             this.button21.Size = new System.Drawing.Size(37, 30);
@@ -454,6 +487,7 @@
             // 
             // button22
             // 
+            this.button22.ForeColor = System.Drawing.Color.Black;
             this.button22.Location = new System.Drawing.Point(426, 41);
             this.button22.Name = "button22";
             this.button22.Size = new System.Drawing.Size(37, 30);
@@ -465,6 +499,7 @@
             // 
             // button23
             // 
+            this.button23.ForeColor = System.Drawing.Color.Black;
             this.button23.Location = new System.Drawing.Point(469, 41);
             this.button23.Name = "button23";
             this.button23.Size = new System.Drawing.Size(37, 30);
@@ -476,6 +511,7 @@
             // 
             // button24
             // 
+            this.button24.ForeColor = System.Drawing.Color.Black;
             this.button24.Location = new System.Drawing.Point(512, 41);
             this.button24.Name = "button24";
             this.button24.Size = new System.Drawing.Size(37, 30);
@@ -487,6 +523,7 @@
             // 
             // testmode_bttn
             // 
+            this.testmode_bttn.ForeColor = System.Drawing.Color.Black;
             this.testmode_bttn.Location = new System.Drawing.Point(555, 91);
             this.testmode_bttn.Name = "testmode_bttn";
             this.testmode_bttn.Size = new System.Drawing.Size(130, 30);
@@ -584,7 +621,6 @@
         private System.Windows.Forms.Button bttn_f11;
         private System.Windows.Forms.Button bttn_f12;
         private System.Windows.Forms.Button bttn_ok;
-        private System.Windows.Forms.TextBox result_txtbx;
         private System.Windows.Forms.Button bttn_1;
         private System.Windows.Forms.Button bttn_2;
         private System.Windows.Forms.Button bttn_3;
@@ -612,5 +648,6 @@
         private System.Windows.Forms.Button testmode_bttn;
         private System.Windows.Forms.ComboBox clients;
         private System.Windows.Forms.CheckBox autotest_chkbx;
+        public System.Windows.Forms.TextBox result_txtbx;
     }
 }

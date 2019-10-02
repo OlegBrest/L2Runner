@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.find_windows_bttn = new System.Windows.Forms.Button();
             this.pictureBoxMain = new System.Windows.Forms.PictureBox();
@@ -44,6 +45,7 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.filter_txtbx = new System.Windows.Forms.TextBox();
             this.clients_dgv = new System.Windows.Forms.DataGridView();
             this.winname_clients_dgv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.winhdr_clients_dgv = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -70,7 +72,6 @@
             this.result_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.delay_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nextuse_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.filter_txtbx = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
@@ -222,6 +223,16 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1091, 529);
             this.panel2.TabIndex = 0;
+            // 
+            // filter_txtbx
+            // 
+            this.filter_txtbx.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::L2Runner.Properties.Settings.Default, "filte_string", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.filter_txtbx.Location = new System.Drawing.Point(270, 83);
+            this.filter_txtbx.Name = "filter_txtbx";
+            this.filter_txtbx.Size = new System.Drawing.Size(252, 20);
+            this.filter_txtbx.TabIndex = 30;
+            this.filter_txtbx.Text = global::L2Runner.Properties.Settings.Default.filte_string;
+            this.filter_txtbx.TextChanged += new System.EventHandler(this.filter_txtbx_TextChanged);
             // 
             // clients_dgv
             // 
@@ -475,18 +486,10 @@
             // nextuse_script_clmn
             // 
             this.nextuse_script_clmn.DataPropertyName = "nextuse_script_clmn";
+            dataGridViewCellStyle2.Format = "dd/MM/yyyy HH:mm:ss.fff";
+            this.nextuse_script_clmn.DefaultCellStyle = dataGridViewCellStyle2;
             this.nextuse_script_clmn.HeaderText = "Next Use after";
             this.nextuse_script_clmn.Name = "nextuse_script_clmn";
-            // 
-            // filter_txtbx
-            // 
-            this.filter_txtbx.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::L2Runner.Properties.Settings.Default, "filte_string", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.filter_txtbx.Location = new System.Drawing.Point(270, 83);
-            this.filter_txtbx.Name = "filter_txtbx";
-            this.filter_txtbx.Size = new System.Drawing.Size(252, 20);
-            this.filter_txtbx.TabIndex = 30;
-            this.filter_txtbx.Text = global::L2Runner.Properties.Settings.Default.filte_string;
-            this.filter_txtbx.TextChanged += new System.EventHandler(this.filter_txtbx_TextChanged);
             // 
             // FormMain
             // 
@@ -547,15 +550,6 @@
         private System.Windows.Forms.DataGridView clients_dgv;
         private System.Windows.Forms.DataGridViewTextBoxColumn winname_clients_dgv;
         private System.Windows.Forms.DataGridViewTextBoxColumn winhdr_clients_dgv;
-        private System.Windows.Forms.DataGridViewTextBoxColumn id_script_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn name_script_clmn;
-        private System.Windows.Forms.DataGridViewComboBoxColumn target_script_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn criteria_script_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn action_script_clmn;
-        private System.Windows.Forms.DataGridViewComboBoxColumn window_script_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn result_script_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn delay_script_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn nextuse_script_clmn;
         private System.Windows.Forms.DataGridViewTextBoxColumn name_clmn;
         private System.Windows.Forms.DataGridViewComboBoxColumn type_clmn;
         private System.Windows.Forms.DataGridViewTextBoxColumn coord_clmn;
@@ -566,6 +560,15 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn last_change;
         private System.Windows.Forms.DataGridViewTextBoxColumn idle;
         private System.Windows.Forms.TextBox filter_txtbx;
+        private System.Windows.Forms.DataGridViewTextBoxColumn id_script_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn name_script_clmn;
+        private System.Windows.Forms.DataGridViewComboBoxColumn target_script_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn criteria_script_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn action_script_clmn;
+        private System.Windows.Forms.DataGridViewComboBoxColumn window_script_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn result_script_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn delay_script_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nextuse_script_clmn;
     }
 }
 

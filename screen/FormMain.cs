@@ -34,12 +34,14 @@ namespace L2Runner
         public DataSet clients_ds = new DataSet("Clients");
         public DataTable clients_dt = new DataTable("clients");
         IntPtr mainwinptr = IntPtr.Zero;
+        Random random = new Random(DateTime.Now.Millisecond);
 
         Bitmap pic1;
 
         double timeRefresh = 0.1;
 
         bool TrackingIsActive = false;
+        bool CheckingConditions = false;
 
         int selectedWindow = 1;
         System.Timers.Timer savetimer = new System.Timers.Timer();
@@ -418,7 +420,7 @@ namespace L2Runner
                         bmp.Dispose();
                     }
                 }
-                CheckConditions();
+                if (!CheckingConditions) CheckConditions();
                 await Task.Delay((int)(timeRefresh * 1000));
                 // Thread.Sleep(1000);
             } while (TrackingIsActive);
@@ -426,9 +428,17 @@ namespace L2Runner
 
         private async void CheckConditions()
         {
+          /*  Logging(" Start Checking");
+            DateTime starttime = DateTime.Now;*/
+            CheckingConditions = true;
             int rowsCount = scripts_dt.Rows.Count;
+            
+            DataRow[] resultRows = scripts_dt.Select("result_script_clmn=true and nextuse_script_clmn <= '" + DateTime.Now + "'");
+            #region conditions cheking
+            //condition string format percent_cond;idle_cond;id....;id
             for (int row = 0; row < rowsCount; row++)
             {
+                bool id_criteries = true;
                 DataRow dr = scripts_dt.Rows[row];
                 string[] criteries = dr["criteria_script_clmn"].ToString().Split(';');
                 string perc_crit = "";
@@ -439,14 +449,50 @@ namespace L2Runner
                 }
                 if (criteries.Length > 1)
                 {
-                    if (criteries[1] != "") time_crit = String.Format(" and idle {1}", DateTime.Now, criteries[1]);
+                    if (criteries[1] != "") time_crit = String.Format(" and idle {0}", criteries[1]);
                 }
+                #region check ID expressions
+                if (criteries.Length > 2)
+                {
+                    if (resultRows.Length > 0)
+                    {
+                        for (int crit = 2; crit < criteries.Length; crit++)
+                        {
+                            bool finded = false;
+                            foreach (DataRow dr1 in resultRows)
+                            {
+                                if (dr1["id_script_clmn"].ToString().Equals(criteries[crit].ToString()))
+                                {
+                                    finded = true;
+                                    //Logging(DateTime.Now + " 351 find " + criteries[crit].ToString() + "---" + dr1["id_script_clmn"]);
+                                }
+                            }
+                            if (!finded)
+                            {
+                                id_criteries = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        id_criteries = false;
+                    }
+                }
+                #endregion
+
                 string expression = String.Format("name_clmn = '{0}' {1} {2}", dr["target_script_clmn"].ToString(), perc_crit, time_crit);
                 DataRow[] targetRow = targets_dt.Select(expression);
-                if (targetRow.Length > 0) dr["result_script_clmn"] = true;
+                if ((targetRow.Length > 0) && (id_criteries))
+                {
+                    dr["result_script_clmn"] = true;
+                }
                 else dr["result_script_clmn"] = false;
             }
-            DataRow[] resultRows = scripts_dt.Select("result_script_clmn=true and nextuse_script_clmn <= '" + DateTime.Now + "'");
+            #endregion
+            resultRows = scripts_dt.Select("result_script_clmn=true and nextuse_script_clmn <= '" + DateTime.Now + "'");
+            #region actions checking
+            //condition string format action|button1,button2.....buttonN
+            // action R = random from all buttons
             if (resultRows.Length > 0)
             {
                 foreach (DataRow dr in resultRows)
@@ -472,19 +518,6 @@ namespace L2Runner
                             {
                                 foreach (string act in actions)
                                 {
-                                    if (act.Contains("ID"))
-                                    {
-                                        bool finded = false;
-                                        foreach (DataRow dr1 in resultRows)
-                                        {
-                                            if (dr1["id_script_clmn"].ToString().Equals(act.Split('=')[1].ToString())) finded = true;
-                                            Logging(DateTime.Now + " 351 find " + act.Split('=')[1] + "---" + dr1["id_script_clmn"]);
-                                        }
-                                        if (finded)
-                                        {
-                                            await DoIt(buttons, "", dr);
-                                        }
-                                    }
                                     if (act == ("R"))
                                     {
                                         await DoIt(buttons, act, dr);
@@ -496,11 +529,13 @@ namespace L2Runner
                     dr["nextuse_script_clmn"] = DateTime.Now.AddMilliseconds(Convert.ToDouble(dr["delay_script_clmn"].ToString()));
                 }
             }
+            #endregion
+            //Logging(" Ending checking in " + (DateTime.Now - starttime).TotalMilliseconds);
+            CheckingConditions = false;
         }
 
         private async Task DoIt(string[] buttons, string act, DataRow row)
         {
-            Random r = new Random(DateTime.Now.Millisecond);
             //Process l2proc = Process.GetProcessesByName(ProcessName)[0];
             //IntPtr l2ptr = l2proc.MainWindowHandle;
             string window = row["window_script_clmn"].ToString();
@@ -512,29 +547,30 @@ namespace L2Runner
             uint uplparam = 0xC0090001;
             if (act == "R")
             {
-                int value = r.Next(0, buttons.Length);
+                int value = random.Next(0, buttons.Length);
                 getLparams(ref downlparam, ref uplparam, buttons[value]);
                 ushort key = (ushort)((Keys)Enum.Parse(typeof(Keys), buttons[value]));
                 User32.PostMessage(l2ptr, WM_KEYDOWN, key, downlparam);
-                Thread.Sleep(120);
+                await Task.Delay(random.Next(110, 300));
                 User32.PostMessage(l2ptr, WM_KEYUP, key, uplparam);
-                Logging(DateTime.Now + " sending " + buttons[value] + " to " + l2ptr);
+                //Logging(DateTime.Now + " sending " + buttons[value] + " to " + l2ptr);
             }
             if (act == "")
             {
                 foreach (string bttn in buttons)
                 {
-                    getLparams(ref downlparam,ref uplparam, bttn);
+                    getLparams(ref downlparam, ref uplparam, bttn);
                     ushort key = (ushort)((Keys)Enum.Parse(typeof(Keys), bttn));
                     User32.PostMessage(l2ptr, WM_KEYDOWN, key, downlparam);
-                    Thread.Sleep(120);
+                    await Task.Delay(random.Next(110, 210));
                     User32.PostMessage(l2ptr, WM_KEYUP, key, uplparam);
-                    await Task.Delay(r.Next(100, 250));
+                    await Task.Delay(random.Next(120, 214));
                     //Thread.Sleep(r.Next(100, 250));
-                    Logging(DateTime.Now + " sending " + bttn + " to " + l2ptr);
+                    //Logging(DateTime.Now + " sending " + bttn + " to " + l2ptr);
                 }
             }
             row["nextuse_script_clmn"] = DateTime.Now.AddMilliseconds(Convert.ToDouble(row["delay_script_clmn"].ToString()));
+            Logging(" sending '" + row["name_script_clmn"].ToString() + "' to " + l2ptr);
         }
 
         public void getLparams(ref uint _down, ref uint _up, string _key)
@@ -588,8 +624,16 @@ namespace L2Runner
                 other_rect.Height = e.Y - other_rect.Y;
                 GettingOtherTarget = false;
                 toolStripStatusLabel.Text = other_text + other_rect.ToString();
-                //targets_dgv.CurrentRow.Cells["coord_clmn"].Value = other_rect.ToString();
-                targets_dt.Rows[targets_dgv.CurrentRow.Index]["coord_clmn"] = other_rect.ToString();
+                try
+                {
+                    targets_dt.Rows[targets_dgv.CurrentRow.Index]["coord_clmn"] = other_rect.ToString();
+                }
+                catch
+                { }
+                finally
+                {
+                    targets_dgv.CurrentRow.Cells["coord_clmn"].Value = other_rect.ToString();
+                }
                 CaptureWindows(mainwinptr);
                 Bitmap bmp;
                 bmp = new Bitmap(pictureBoxMain.Width, pictureBoxMain.Height);
@@ -926,22 +970,31 @@ namespace L2Runner
 
         private void dgv_script_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.ColumnIndex>=0)
+            { 
             DataGridViewColumn dgvc = dgv_script.Columns[e.ColumnIndex];
-            if (dgvc.Name == "action_script_clmn")
-            {
-                L2KeyBoardForm kb = new L2KeyBoardForm();
-                this.Hide();
-                DialogResult dlgres = kb.ShowDialog(this);
-                if (dlgres != DialogResult.Ignore)
+            DataGridViewCell dgvcell = dgv_script.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                if (dgvc.Name == "action_script_clmn")
                 {
-                    this.Show();
+                    L2KeyBoardForm kb = new L2KeyBoardForm();
+                    this.Hide();
+                    DialogResult dlgres = kb.ShowDialog(this);
+                    if (dlgres != DialogResult.Ignore)
+                    {
+                        if (dlgres == DialogResult.OK)
+                        {
+                            dgvcell.Value = kb.result_txtbx.Text;
+                        }
+                        this.Show();
+                    }
                 }
             }
         }
 
         private void Logging(string msg)
         {
-            log.Items.Add(msg);
+            string log_msg = (String.Format("{0:HH:mm:ss.fff}", DateTime.Now) + msg);
+            log.Items.Add(log_msg);
             log.SelectedIndex = log.Items.Count - 1;
             log.SelectedIndex = -1;
         }
