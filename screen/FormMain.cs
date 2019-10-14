@@ -35,7 +35,7 @@ namespace L2Runner
         public DataTable clients_dt = new DataTable("clients");
         IntPtr mainwinptr = IntPtr.Zero;
         Random random = new Random(DateTime.Now.Millisecond);
-
+        DataTable ImageTypes = new DataTable();
         Bitmap pic1;
 
         double timeRefresh = 0.1;
@@ -53,6 +53,11 @@ namespace L2Runner
             targets_ds.Tables.Add(targets_dt);
             scripts_ds.Tables.Add(scripts_dt);
             clients_ds.Tables.Add(clients_dt);
+            DataColumn dc = new DataColumn("Name");
+            ImageTypes.Columns.Add(dc);
+            ImageTypes.Rows.Add("Bar");
+            ImageTypes.Rows.Add("Button");
+            ImageTypes.Rows.Add("Image");
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -162,7 +167,13 @@ namespace L2Runner
                 dr["name_clmn"] = "Target HP";
                 targets_dt.Rows.Add(dr);
             }
+            DataGridViewComboBoxColumn type_cmbbx = (targets_dgv.Columns["type_clmn"] as DataGridViewComboBoxColumn);
+            type_cmbbx.DataSource = ImageTypes;
+            type_cmbbx.ValueMember = "Name";
+            type_cmbbx.DisplayMember = "Name";
             targets_dgv.DataSource = targets_dt;
+            
+            //type_cmbbx.Items.AddRange( "Bar", "Button", "Image");
             #endregion
 
             #region script load
@@ -399,7 +410,9 @@ namespace L2Runner
                                 ByteArray2darr((byte[])targets_dt.Rows[rws]["ideal_value_clmn"], rcngl, ref idealArr);
                                 ByteArray2darr((byte[])targets_dt.Rows[rws]["Current_value_clmn"], rcngl, ref currArr);
                                 int err = Convert.ToInt32(targets_dt.Rows[rws]["correction_clmn"].ToString());
-                                int compresult = calcPercentComparisson(idealArr, currArr, err);
+                                int compresult = 0;
+                                if(targets_dt.Rows[rws]["type_clmn"].ToString().Equals("Bar")) compresult = calcPercentBarComparisson(idealArr, currArr, err);
+                                if (targets_dt.Rows[rws]["type_clmn"].ToString().Equals("Image")) compresult = calcPercentImageComparisson(idealArr, currArr, err);
                                 //targets_dgv.Rows[rws].Cells["percentage_clmn"].Value = compresult;
                                 if (!targets_dt.Rows[rws]["percentage_clmn"].ToString().Equals(compresult.ToString()))
                                 {
@@ -428,8 +441,8 @@ namespace L2Runner
 
         private async void CheckConditions()
         {
-          /*  Logging(" Start Checking");
-            DateTime starttime = DateTime.Now;*/
+          //  Logging(" Start Checking");
+            DateTime starttime = DateTime.Now;
             CheckingConditions = true;
             int rowsCount = scripts_dt.Rows.Count;
             
@@ -487,6 +500,7 @@ namespace L2Runner
                     dr["result_script_clmn"] = true;
                 }
                 else dr["result_script_clmn"] = false;
+                targets_dgv.Refresh();
             }
             #endregion
             resultRows = scripts_dt.Select("result_script_clmn=true and nextuse_script_clmn <= '" + DateTime.Now + "'");
@@ -531,9 +545,24 @@ namespace L2Runner
             }
             #endregion
             //Logging(" Ending checking in " + (DateTime.Now - starttime).TotalMilliseconds);
+            if (toolStripStatusLabel.Text != "")
+            {
+                toolStripStatusLabel.Text = (((Convert.ToDouble(toolStripStatusLabel.Text) + (DateTime.Now - starttime).TotalMilliseconds)) / 2).ToString();
+            }
+            else
+            {
+                toolStripStatusLabel.Text = ((DateTime.Now - starttime).TotalMilliseconds).ToString();
+            }
             CheckingConditions = false;
         }
 
+        /// <summary>
+        /// Async clicker
+        /// </summary>
+        /// <param name="buttons">Buttonts to click</param>
+        /// <param name="act">Action (R-random click,"" - Serial click)</param>
+        /// <param name="row">№ of row actions</param>
+        /// <returns></returns>
         private async Task DoIt(string[] buttons, string act, DataRow row)
         {
             //Process l2proc = Process.GetProcessesByName(ProcessName)[0];
@@ -600,7 +629,7 @@ namespace L2Runner
             return result;
         }
 
-        #region SettingUP for hp/cp/mp/mobHP settings
+        #region SettingUP for hp/cp/mp/mobHP BAR settings
 
         private void pictureBoxMain_MouseDown(object sender, MouseEventArgs e)
         {
@@ -844,7 +873,14 @@ namespace L2Runner
             return res;
         }
 
-        private int calcPercentComparisson(int[,] _ideal, int[,] _current, int? errorValue = 10)
+        /// <summary>
+        /// Calculation Percent of comparisson of Bar
+        /// </summary>
+        /// <param name="_ideal"></param>
+        /// <param name="_current"></param>
+        /// <param name="errorValue"></param>
+        /// <returns></returns>
+        private int calcPercentBarComparisson(int[,] _ideal, int[,] _current, int? errorValue = 10)
         {
             int result = -1;
             if ((_ideal != null) && (_current != null))
@@ -878,6 +914,47 @@ namespace L2Runner
             }
             return result;
         }
+
+        /// <summary>
+        /// Calculation Percent of comparisson of Image
+        /// </summary>
+        /// <param name="_ideal"></param>
+        /// <param name="_current"></param>
+        /// <param name="errorValue"></param>
+        /// <returns></returns>
+        private int calcPercentImageComparisson(int[,] _ideal, int[,] _current, int? errorValue = 10)
+        {
+            int result = -1;
+            if ((_ideal != null) && (_current != null))
+            {
+                int startX = _ideal.GetLength(0) - 1;
+                int startY = _ideal.GetLength(1) - 1;
+                int x = startX;
+                if (startX != 0)
+                {
+                    double SumPercents = 0;
+                    double totalPixels = 0;
+                    for (x = startX; x >= 0; x--)
+                    {
+                        int y = startY;
+                        for (y = 0; y <= startY; y++)
+                        {
+                            Color fst = Color.FromArgb(_ideal[x, y]);
+                            Color scnd = Color.FromArgb(_current[x, y]);
+                            double r = ((255 - clrCompare(fst, scnd)) / 255)*100;
+                            if (r > errorValue)
+                            {
+                                SumPercents += r;
+                            }
+                            totalPixels++;
+                        }
+                    }
+                    result = (int)(SumPercents / totalPixels);
+                }
+            }
+            return result;
+        }
+
 
         private double clrCompare(Color _frst, Color _scnd)
         {
@@ -917,13 +994,16 @@ namespace L2Runner
 
         private void updateIdealValuesToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            
             CaptureWindows(mainwinptr);
             Bitmap bmp = ((Bitmap)pictureBoxMain.Image);
-            string coords = targets_dgv.CurrentRow.Cells["coord_clmn"].Value.ToString();
-            Rectangle rcngl = RectFromString(coords);
-            if ((bmp != null) && (rcngl != new Rectangle(0, 0, 0, 0))) targets_dgv.CurrentRow.Cells["ideal_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
-            //targets_dt.Rows[rws]["ideal_value_clmn"] = getPartOfBMP(bmp, rcngl);
-
+            if (targets_dgv.CurrentRow.Cells["type_clmn"].Value.ToString().Equals("Bar"))
+            {
+                string coords = targets_dgv.CurrentRow.Cells["coord_clmn"].Value.ToString();
+                Rectangle rcngl = RectFromString(coords);
+                if ((bmp != null) && (rcngl != new Rectangle(0, 0, 0, 0))) targets_dgv.CurrentRow.Cells["ideal_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
+                //targets_dt.Rows[rws]["ideal_value_clmn"] = getPartOfBMP(bmp, rcngl);
+            }
         }
 
         private void find_windows_bttn_Click(object sender, EventArgs e)
@@ -1029,6 +1109,19 @@ namespace L2Runner
             ProcessName = filter_txtbx.Text;
             Properties.Settings.Default.filte_string = filter_txtbx.Text;
             Properties.Settings.Default.Save();
+        }
+
+        private void targets_dgv_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            DataGridView dgv = sender as DataGridView;
+            if (e.Exception.Message.Equals("Недопустимое значение DataGridViewComboBoxCell."))
+            {
+                dgv.CurrentCell.Value = dgv.CurrentCell.DefaultNewRowValue;
+            }
+            else
+            {
+                MessageBox.Show(e.Exception.ToString());
+            }
         }
     }
 }

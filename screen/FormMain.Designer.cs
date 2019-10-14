@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.find_windows_bttn = new System.Windows.Forms.Button();
             this.pictureBoxMain = new System.Windows.Forms.PictureBox();
@@ -50,16 +50,6 @@
             this.winname_clients_dgv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.winhdr_clients_dgv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.log = new System.Windows.Forms.ListBox();
-            this.targets_dgv = new L2Runner.MyDGrV();
-            this.name_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.type_clmn = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.coord_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.percentage_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ideal_value_clmn = new System.Windows.Forms.DataGridViewImageColumn();
-            this.Current_value_clmn = new System.Windows.Forms.DataGridViewImageColumn();
-            this.correction_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.last_change = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.idle = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.panel4 = new System.Windows.Forms.Panel();
             this.dgv_script = new System.Windows.Forms.DataGridView();
@@ -72,6 +62,16 @@
             this.result_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.delay_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nextuse_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.targets_dgv = new L2Runner.MyDGrV();
+            this.name_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.type_clmn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.coord_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.percentage_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ideal_value_clmn = new System.Windows.Forms.DataGridViewImageColumn();
+            this.Current_value_clmn = new System.Windows.Forms.DataGridViewImageColumn();
+            this.correction_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.last_change = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.idle = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
@@ -82,10 +82,10 @@
             this.tabPage1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.clients_dgv)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).BeginInit();
             this.tabPage2.SuspendLayout();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_script)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).BeginInit();
             this.SuspendLayout();
             // 
             // find_windows_bttn
@@ -176,14 +176,14 @@
             this.contextMenu_otherDGV.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.updateIdealValuesToolStripMenuItem});
             this.contextMenu_otherDGV.Name = "contextMenu_otherDGV";
-            this.contextMenu_otherDGV.Size = new System.Drawing.Size(177, 26);
+            this.contextMenu_otherDGV.Size = new System.Drawing.Size(219, 26);
             this.contextMenu_otherDGV.Text = "Editing Key Settings";
             // 
             // updateIdealValuesToolStripMenuItem
             // 
             this.updateIdealValuesToolStripMenuItem.Name = "updateIdealValuesToolStripMenuItem";
-            this.updateIdealValuesToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
-            this.updateIdealValuesToolStripMenuItem.Text = "Update Ideal Values";
+            this.updateIdealValuesToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+            this.updateIdealValuesToolStripMenuItem.Text = "Update Ideal Sample Image";
             this.updateIdealValuesToolStripMenuItem.Click += new System.EventHandler(this.updateIdealValuesToolStripMenuItem_Click);
             // 
             // tabControl1
@@ -269,115 +269,6 @@
             this.log.Name = "log";
             this.log.Size = new System.Drawing.Size(517, 56);
             this.log.TabIndex = 28;
-            // 
-            // targets_dgv
-            // 
-            this.targets_dgv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.targets_dgv.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.targets_dgv.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
-            this.targets_dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.targets_dgv.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.name_clmn,
-            this.type_clmn,
-            this.coord_clmn,
-            this.percentage_clmn,
-            this.ideal_value_clmn,
-            this.Current_value_clmn,
-            this.correction_clmn,
-            this.last_change,
-            this.idle});
-            this.targets_dgv.ContextMenuStrip = this.contextMenu_otherDGV;
-            this.targets_dgv.Location = new System.Drawing.Point(3, 308);
-            this.targets_dgv.Name = "targets_dgv";
-            this.targets_dgv.Size = new System.Drawing.Size(1083, 218);
-            this.targets_dgv.TabIndex = 27;
-            this.targets_dgv.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.other_targets_dgv_CellClick);
-            this.targets_dgv.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.targets_dgv_CellValueChanged);
-            // 
-            // name_clmn
-            // 
-            this.name_clmn.DataPropertyName = "name_clmn";
-            this.name_clmn.HeaderText = "Name";
-            this.name_clmn.Name = "name_clmn";
-            this.name_clmn.Width = 60;
-            // 
-            // type_clmn
-            // 
-            this.type_clmn.DataPropertyName = "type_clmn";
-            this.type_clmn.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.Nothing;
-            this.type_clmn.HeaderText = "Type";
-            this.type_clmn.Items.AddRange(new object[] {
-            "Bar",
-            "Button",
-            "Picture"});
-            this.type_clmn.Name = "type_clmn";
-            this.type_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.type_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.type_clmn.Width = 56;
-            // 
-            // coord_clmn
-            // 
-            this.coord_clmn.DataPropertyName = "coord_clmn";
-            this.coord_clmn.HeaderText = "Coords";
-            this.coord_clmn.Name = "coord_clmn";
-            this.coord_clmn.Width = 65;
-            // 
-            // percentage_clmn
-            // 
-            this.percentage_clmn.DataPropertyName = "percentage_clmn";
-            this.percentage_clmn.HeaderText = "Similarity";
-            this.percentage_clmn.Name = "percentage_clmn";
-            this.percentage_clmn.ReadOnly = true;
-            this.percentage_clmn.Width = 72;
-            // 
-            // ideal_value_clmn
-            // 
-            this.ideal_value_clmn.DataPropertyName = "ideal_value_clmn";
-            this.ideal_value_clmn.HeaderText = "Ideal";
-            this.ideal_value_clmn.Name = "ideal_value_clmn";
-            this.ideal_value_clmn.ReadOnly = true;
-            this.ideal_value_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.ideal_value_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.ideal_value_clmn.Width = 55;
-            // 
-            // Current_value_clmn
-            // 
-            this.Current_value_clmn.DataPropertyName = "Current_value_clmn";
-            this.Current_value_clmn.HeaderText = "Current";
-            this.Current_value_clmn.Name = "Current_value_clmn";
-            this.Current_value_clmn.ReadOnly = true;
-            this.Current_value_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Current_value_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.Current_value_clmn.Width = 66;
-            // 
-            // correction_clmn
-            // 
-            this.correction_clmn.DataPropertyName = "correction_clmn";
-            this.correction_clmn.HeaderText = "PixelCorrection";
-            this.correction_clmn.Name = "correction_clmn";
-            this.correction_clmn.Width = 102;
-            // 
-            // last_change
-            // 
-            this.last_change.DataPropertyName = "last_change";
-            dataGridViewCellStyle1.Format = "dd/MM/yyyy HH:mm:ss.fff";
-            dataGridViewCellStyle1.NullValue = null;
-            this.last_change.DefaultCellStyle = dataGridViewCellStyle1;
-            this.last_change.HeaderText = "last_change";
-            this.last_change.Name = "last_change";
-            this.last_change.ReadOnly = true;
-            this.last_change.Visible = false;
-            this.last_change.Width = 90;
-            // 
-            // idle
-            // 
-            this.idle.DataPropertyName = "idle";
-            this.idle.HeaderText = "Idle";
-            this.idle.Name = "idle";
-            this.idle.ReadOnly = true;
-            this.idle.Width = 49;
             // 
             // tabPage2
             // 
@@ -491,6 +382,112 @@
             this.nextuse_script_clmn.HeaderText = "Next Use after";
             this.nextuse_script_clmn.Name = "nextuse_script_clmn";
             // 
+            // targets_dgv
+            // 
+            this.targets_dgv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.targets_dgv.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.targets_dgv.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.targets_dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.targets_dgv.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.name_clmn,
+            this.type_clmn,
+            this.coord_clmn,
+            this.percentage_clmn,
+            this.ideal_value_clmn,
+            this.Current_value_clmn,
+            this.correction_clmn,
+            this.last_change,
+            this.idle});
+            this.targets_dgv.ContextMenuStrip = this.contextMenu_otherDGV;
+            this.targets_dgv.Location = new System.Drawing.Point(3, 308);
+            this.targets_dgv.Name = "targets_dgv";
+            this.targets_dgv.Size = new System.Drawing.Size(1083, 218);
+            this.targets_dgv.TabIndex = 27;
+            this.targets_dgv.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.other_targets_dgv_CellClick);
+            this.targets_dgv.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.targets_dgv_CellValueChanged);
+            this.targets_dgv.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.targets_dgv_DataError);
+            // 
+            // name_clmn
+            // 
+            this.name_clmn.DataPropertyName = "name_clmn";
+            this.name_clmn.HeaderText = "Name";
+            this.name_clmn.Name = "name_clmn";
+            this.name_clmn.Width = 60;
+            // 
+            // type_clmn
+            // 
+            this.type_clmn.DataPropertyName = "type_clmn";
+            this.type_clmn.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.Nothing;
+            this.type_clmn.HeaderText = "Type";
+            this.type_clmn.Name = "type_clmn";
+            this.type_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.type_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.type_clmn.Width = 56;
+            // 
+            // coord_clmn
+            // 
+            this.coord_clmn.DataPropertyName = "coord_clmn";
+            this.coord_clmn.HeaderText = "Coords of bar / Image finder";
+            this.coord_clmn.Name = "coord_clmn";
+            this.coord_clmn.Width = 126;
+            // 
+            // percentage_clmn
+            // 
+            this.percentage_clmn.DataPropertyName = "percentage_clmn";
+            this.percentage_clmn.HeaderText = "Similarity";
+            this.percentage_clmn.Name = "percentage_clmn";
+            this.percentage_clmn.ReadOnly = true;
+            this.percentage_clmn.Width = 72;
+            // 
+            // ideal_value_clmn
+            // 
+            this.ideal_value_clmn.DataPropertyName = "ideal_value_clmn";
+            this.ideal_value_clmn.HeaderText = "Ideal sample";
+            this.ideal_value_clmn.Name = "ideal_value_clmn";
+            this.ideal_value_clmn.ReadOnly = true;
+            this.ideal_value_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.ideal_value_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.ideal_value_clmn.Width = 84;
+            // 
+            // Current_value_clmn
+            // 
+            this.Current_value_clmn.DataPropertyName = "Current_value_clmn";
+            this.Current_value_clmn.HeaderText = "Current";
+            this.Current_value_clmn.Name = "Current_value_clmn";
+            this.Current_value_clmn.ReadOnly = true;
+            this.Current_value_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Current_value_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.Current_value_clmn.Width = 66;
+            // 
+            // correction_clmn
+            // 
+            this.correction_clmn.DataPropertyName = "correction_clmn";
+            this.correction_clmn.HeaderText = "PixelCorrection";
+            this.correction_clmn.Name = "correction_clmn";
+            this.correction_clmn.Width = 102;
+            // 
+            // last_change
+            // 
+            this.last_change.DataPropertyName = "last_change";
+            dataGridViewCellStyle1.Format = "dd/MM/yyyy HH:mm:ss.fff";
+            dataGridViewCellStyle1.NullValue = null;
+            this.last_change.DefaultCellStyle = dataGridViewCellStyle1;
+            this.last_change.HeaderText = "last_change";
+            this.last_change.Name = "last_change";
+            this.last_change.ReadOnly = true;
+            this.last_change.Visible = false;
+            this.last_change.Width = 90;
+            // 
+            // idle
+            // 
+            this.idle.DataPropertyName = "idle";
+            this.idle.HeaderText = "Idle";
+            this.idle.Name = "idle";
+            this.idle.ReadOnly = true;
+            this.idle.Width = 49;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -518,10 +515,10 @@
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.clients_dgv)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_script)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -550,15 +547,6 @@
         private System.Windows.Forms.DataGridView clients_dgv;
         private System.Windows.Forms.DataGridViewTextBoxColumn winname_clients_dgv;
         private System.Windows.Forms.DataGridViewTextBoxColumn winhdr_clients_dgv;
-        private System.Windows.Forms.DataGridViewTextBoxColumn name_clmn;
-        private System.Windows.Forms.DataGridViewComboBoxColumn type_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn coord_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn percentage_clmn;
-        private System.Windows.Forms.DataGridViewImageColumn ideal_value_clmn;
-        private System.Windows.Forms.DataGridViewImageColumn Current_value_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn correction_clmn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn last_change;
-        private System.Windows.Forms.DataGridViewTextBoxColumn idle;
         private System.Windows.Forms.TextBox filter_txtbx;
         private System.Windows.Forms.DataGridViewTextBoxColumn id_script_clmn;
         private System.Windows.Forms.DataGridViewTextBoxColumn name_script_clmn;
@@ -569,6 +557,15 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn result_script_clmn;
         private System.Windows.Forms.DataGridViewTextBoxColumn delay_script_clmn;
         private System.Windows.Forms.DataGridViewTextBoxColumn nextuse_script_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn name_clmn;
+        private System.Windows.Forms.DataGridViewComboBoxColumn type_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn coord_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn percentage_clmn;
+        private System.Windows.Forms.DataGridViewImageColumn ideal_value_clmn;
+        private System.Windows.Forms.DataGridViewImageColumn Current_value_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn correction_clmn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn last_change;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idle;
     }
 }
 
