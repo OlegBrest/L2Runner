@@ -62,12 +62,12 @@ namespace L2Runner.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("l2")]
-        public string filte_string {
+        public string filter_string {
             get {
-                return ((string)(this["filte_string"]));
+                return ((string)(this["filter_string"]));
             }
             set {
-                this["filte_string"] = value;
+                this["filter_string"] = value;
             }
         }
     }

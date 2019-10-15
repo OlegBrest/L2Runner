@@ -62,6 +62,9 @@
             this.result_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.delay_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nextuse_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.splitContainerMain = new System.Windows.Forms.SplitContainer();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.setSampleToFindToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.targets_dgv = new L2Runner.MyDGrV();
             this.name_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.type_clmn = new System.Windows.Forms.DataGridViewComboBoxColumn();
@@ -85,6 +88,11 @@
             this.tabPage2.SuspendLayout();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_script)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
+            this.splitContainerMain.Panel1.SuspendLayout();
+            this.splitContainerMain.Panel2.SuspendLayout();
+            this.splitContainerMain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).BeginInit();
             this.SuspendLayout();
             // 
@@ -104,8 +112,8 @@
             this.pictureBoxMain.BackColor = System.Drawing.Color.White;
             this.pictureBoxMain.Location = new System.Drawing.Point(0, 3);
             this.pictureBoxMain.Name = "pictureBoxMain";
-            this.pictureBoxMain.Size = new System.Drawing.Size(520, 210);
-            this.pictureBoxMain.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBoxMain.Size = new System.Drawing.Size(538, 296);
+            this.pictureBoxMain.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBoxMain.TabIndex = 2;
             this.pictureBoxMain.TabStop = false;
             this.pictureBoxMain.Click += new System.EventHandler(this.pictureBoxMain_Click);
@@ -118,7 +126,7 @@
             this.buttonTracking.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.buttonTracking.Location = new System.Drawing.Point(268, 3);
             this.buttonTracking.Name = "buttonTracking";
-            this.buttonTracking.Size = new System.Drawing.Size(254, 74);
+            this.buttonTracking.Size = new System.Drawing.Size(202, 74);
             this.buttonTracking.TabIndex = 5;
             this.buttonTracking.Text = "Start Boting";
             this.buttonTracking.UseVisualStyleBackColor = true;
@@ -162,22 +170,25 @@
             // 
             // panel3
             // 
-            this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel3.AutoScroll = true;
             this.panel3.Controls.Add(this.pictureBoxMain);
             this.panel3.Location = new System.Drawing.Point(528, 3);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(560, 299);
+            this.panel3.Size = new System.Drawing.Size(541, 316);
             this.panel3.TabIndex = 18;
             // 
             // contextMenu_otherDGV
             // 
             this.contextMenu_otherDGV.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.updateIdealValuesToolStripMenuItem});
+            this.updateIdealValuesToolStripMenuItem,
+            this.setSampleToFindToolStripMenuItem});
             this.contextMenu_otherDGV.Name = "contextMenu_otherDGV";
-            this.contextMenu_otherDGV.Size = new System.Drawing.Size(219, 26);
+            this.contextMenu_otherDGV.Size = new System.Drawing.Size(219, 48);
             this.contextMenu_otherDGV.Text = "Editing Key Settings";
+            this.contextMenu_otherDGV.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenu_otherDGV_Opening);
             // 
             // updateIdealValuesToolStripMenuItem
             // 
@@ -199,7 +210,7 @@
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.panel2);
+            this.tabPage1.Controls.Add(this.splitContainerMain);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -210,28 +221,30 @@
             // 
             // panel2
             // 
+            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel2.Controls.Add(this.trackBar1);
             this.panel2.Controls.Add(this.filter_txtbx);
             this.panel2.Controls.Add(this.clients_dgv);
             this.panel2.Controls.Add(this.log);
             this.panel2.Controls.Add(this.find_windows_bttn);
             this.panel2.Controls.Add(this.panel3);
-            this.panel2.Controls.Add(this.targets_dgv);
             this.panel2.Controls.Add(this.panel1);
             this.panel2.Controls.Add(this.buttonTracking);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(3, 3);
+            this.panel2.Location = new System.Drawing.Point(19, 18);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1091, 529);
+            this.panel2.Size = new System.Drawing.Size(1072, 316);
             this.panel2.TabIndex = 0;
             // 
             // filter_txtbx
             // 
-            this.filter_txtbx.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::L2Runner.Properties.Settings.Default, "filte_string", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.filter_txtbx.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::L2Runner.Properties.Settings.Default, "filter_string", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.filter_txtbx.Location = new System.Drawing.Point(270, 83);
             this.filter_txtbx.Name = "filter_txtbx";
             this.filter_txtbx.Size = new System.Drawing.Size(252, 20);
             this.filter_txtbx.TabIndex = 30;
-            this.filter_txtbx.Text = global::L2Runner.Properties.Settings.Default.filte_string;
+            this.filter_txtbx.Text = global::L2Runner.Properties.Settings.Default.filter_string;
             this.filter_txtbx.TextChanged += new System.EventHandler(this.filter_txtbx_TextChanged);
             // 
             // clients_dgv
@@ -382,11 +395,48 @@
             this.nextuse_script_clmn.HeaderText = "Next Use after";
             this.nextuse_script_clmn.Name = "nextuse_script_clmn";
             // 
+            // splitContainerMain
+            // 
+            this.splitContainerMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainerMain.Location = new System.Drawing.Point(3, 3);
+            this.splitContainerMain.Name = "splitContainerMain";
+            this.splitContainerMain.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainerMain.Panel1
+            // 
+            this.splitContainerMain.Panel1.AutoScroll = true;
+            this.splitContainerMain.Panel1.Controls.Add(this.panel2);
+            // 
+            // splitContainerMain.Panel2
+            // 
+            this.splitContainerMain.Panel2.AutoScroll = true;
+            this.splitContainerMain.Panel2.Controls.Add(this.targets_dgv);
+            this.splitContainerMain.Size = new System.Drawing.Size(1091, 529);
+            this.splitContainerMain.SplitterDistance = 334;
+            this.splitContainerMain.SplitterWidth = 10;
+            this.splitContainerMain.TabIndex = 31;
+            // 
+            // trackBar1
+            // 
+            this.trackBar1.Location = new System.Drawing.Point(477, 3);
+            this.trackBar1.Maximum = 500;
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.trackBar1.Size = new System.Drawing.Size(45, 74);
+            this.trackBar1.TabIndex = 31;
+            this.trackBar1.Value = 100;
+            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            this.trackBar1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.trackBar1_MouseUp);
+            // 
+            // setSampleToFindToolStripMenuItem
+            // 
+            this.setSampleToFindToolStripMenuItem.Name = "setSampleToFindToolStripMenuItem";
+            this.setSampleToFindToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+            this.setSampleToFindToolStripMenuItem.Text = "Set sample to find";
+            this.setSampleToFindToolStripMenuItem.Click += new System.EventHandler(this.setSampleToFindToolStripMenuItem_Click);
+            // 
             // targets_dgv
             // 
-            this.targets_dgv.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.targets_dgv.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.targets_dgv.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.targets_dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -401,9 +451,10 @@
             this.last_change,
             this.idle});
             this.targets_dgv.ContextMenuStrip = this.contextMenu_otherDGV;
-            this.targets_dgv.Location = new System.Drawing.Point(3, 308);
+            this.targets_dgv.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.targets_dgv.Location = new System.Drawing.Point(0, 0);
             this.targets_dgv.Name = "targets_dgv";
-            this.targets_dgv.Size = new System.Drawing.Size(1083, 218);
+            this.targets_dgv.Size = new System.Drawing.Size(1091, 185);
             this.targets_dgv.TabIndex = 27;
             this.targets_dgv.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.other_targets_dgv_CellClick);
             this.targets_dgv.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.targets_dgv_CellValueChanged);
@@ -429,7 +480,7 @@
             // coord_clmn
             // 
             this.coord_clmn.DataPropertyName = "coord_clmn";
-            this.coord_clmn.HeaderText = "Coords of bar / Image finder";
+            this.coord_clmn.HeaderText = "Coords of bar / Image positions";
             this.coord_clmn.Name = "coord_clmn";
             this.coord_clmn.Width = 126;
             // 
@@ -497,7 +548,6 @@
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
             this.Name = "FormMain";
             this.Text = "L2 Runner";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
@@ -508,7 +558,6 @@
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.panel3.ResumeLayout(false);
-            this.panel3.PerformLayout();
             this.contextMenu_otherDGV.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
@@ -518,6 +567,11 @@
             this.tabPage2.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_script)).EndInit();
+            this.splitContainerMain.Panel1.ResumeLayout(false);
+            this.splitContainerMain.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).EndInit();
+            this.splitContainerMain.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -566,6 +620,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn correction_clmn;
         private System.Windows.Forms.DataGridViewTextBoxColumn last_change;
         private System.Windows.Forms.DataGridViewTextBoxColumn idle;
+        private System.Windows.Forms.SplitContainer splitContainerMain;
+        private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.ToolStripMenuItem setSampleToFindToolStripMenuItem;
     }
 }
 

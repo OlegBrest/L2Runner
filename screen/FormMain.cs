@@ -37,7 +37,7 @@ namespace L2Runner
         Random random = new Random(DateTime.Now.Millisecond);
         DataTable ImageTypes = new DataTable();
         Bitmap pic1;
-
+        double MainZoom = 1;
         double timeRefresh = 0.1;
 
         bool TrackingIsActive = false;
@@ -50,14 +50,24 @@ namespace L2Runner
         public FormMain()
         {
             InitializeComponent();
+            ProcessName = Properties.Settings.Default.filter_string;
+            pictureBoxMain.MouseWheel += PictureBoxMain_MouseWheel;
+            trackBar1.MouseWheel += TrackBar1_MouseWheel;
             targets_ds.Tables.Add(targets_dt);
             scripts_ds.Tables.Add(scripts_dt);
             clients_ds.Tables.Add(clients_dt);
             DataColumn dc = new DataColumn("Name");
             ImageTypes.Columns.Add(dc);
-            ImageTypes.Rows.Add("Bar");
-            ImageTypes.Rows.Add("Button");
-            ImageTypes.Rows.Add("Image");
+            ImageTypes.Rows.Add("Bar"); // bar 
+            ImageTypes.Rows.Add("FieldImage"); // image in field , getting all coords (PixelCorrection.Format = PrecisionPerPixel/PrecisionOfImage), (Similarity.Format = Coord1|Coord2....)
+            ImageTypes.Rows.Add("Image");// image compare on coords like bar (PixelCorrection.Format = PrecisionPerPixel)
+
+        }
+
+        // Change zoom on mouse scrooling
+        private void PictureBoxMain_MouseWheel(object sender, MouseEventArgs e)
+        {
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -136,7 +146,40 @@ namespace L2Runner
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "125");
+                    if (ex.Message == "Отсутствует корневой элемент.")
+                    {
+                        File.Delete("l2runner.xml");
+
+                        foreach (DataGridViewColumn dgvc in targets_dgv.Columns)
+                        {
+                            DataColumn dc = new DataColumn(dgvc.Name);
+                            dc.Caption = dgvc.HeaderText;
+                            if (dgvc.GetType() == typeof(DataGridViewImageColumn)) dc.DataType = System.Type.GetType("System.Byte[]");
+                            if (dgvc.Name == "correction_clmn") dc.DefaultValue = 10.0;
+                            if (dgvc.Name == "last_change")
+                            {
+                                dc.DataType = typeof(DateTime);
+                                dc.DefaultValue = DateTime.Now;
+                            }
+                            targets_dt.Columns.Add(dc);
+                        }
+                        DataRow dr = targets_dt.NewRow();
+                        dr["name_clmn"] = "Self CP";
+                        targets_dt.Rows.Add(dr);
+                        dr = targets_dt.NewRow();
+                        dr["name_clmn"] = "Self HP";
+                        targets_dt.Rows.Add(dr);
+                        dr = targets_dt.NewRow();
+                        dr["name_clmn"] = "Self MP";
+                        targets_dt.Rows.Add(dr);
+                        dr = targets_dt.NewRow();
+                        dr["name_clmn"] = "Target HP";
+                        targets_dt.Rows.Add(dr);
+                    }
+                    else
+                    {
+                        MessageBox.Show(ex.Message, "125");
+                    }
                 }
             }
             else
@@ -401,25 +444,47 @@ namespace L2Runner
 
                             for (int rws = 0; rws < targets_dt.Rows.Count; rws++)
                             {
-                                Rectangle rcngl = RectFromString(targets_dt.Rows[rws]["coord_clmn"].ToString());
-                                //targets_dgv.Rows[rws].Cells["Current_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
-                                ImageConverter converter = new ImageConverter();
-                                targets_dt.Rows[rws]["Current_value_clmn"] = (byte[])converter.ConvertTo(getPartOfBMP(bmp, rcngl), typeof(byte[]));
-                                int[,] idealArr = null;
-                                int[,] currArr = null;
-                                ByteArray2darr((byte[])targets_dt.Rows[rws]["ideal_value_clmn"], rcngl, ref idealArr);
-                                ByteArray2darr((byte[])targets_dt.Rows[rws]["Current_value_clmn"], rcngl, ref currArr);
-                                int err = Convert.ToInt32(targets_dt.Rows[rws]["correction_clmn"].ToString());
-                                int compresult = 0;
-                                if(targets_dt.Rows[rws]["type_clmn"].ToString().Equals("Bar")) compresult = calcPercentBarComparisson(idealArr, currArr, err);
-                                if (targets_dt.Rows[rws]["type_clmn"].ToString().Equals("Image")) compresult = calcPercentImageComparisson(idealArr, currArr, err);
-                                //targets_dgv.Rows[rws].Cells["percentage_clmn"].Value = compresult;
-                                if (!targets_dt.Rows[rws]["percentage_clmn"].ToString().Equals(compresult.ToString()))
+                                string type = targets_dt.Rows[rws]["type_clmn"].ToString();
+                                if (!type.Equals("FieldImage"))
                                 {
-                                    targets_dt.Rows[rws]["percentage_clmn"] = compresult;
-                                    targets_dt.Rows[rws]["last_change"] = DateTime.Now;
+                                    Rectangle rcngl = RectFromString(targets_dt.Rows[rws]["coord_clmn"].ToString());
+                                    //targets_dgv.Rows[rws].Cells["Current_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
+                                    ImageConverter converter = new ImageConverter();
+                                    targets_dt.Rows[rws]["Current_value_clmn"] = (byte[])converter.ConvertTo(getPartOfBMP(bmp, rcngl), typeof(byte[]));
+                                    int[,] idealArr = null;
+                                    int[,] currArr = null;
+                                    ByteArray2darr((byte[])targets_dt.Rows[rws]["ideal_value_clmn"], rcngl, ref idealArr);
+                                    ByteArray2darr((byte[])targets_dt.Rows[rws]["Current_value_clmn"], rcngl, ref currArr);
+                                    int err = Convert.ToInt32(targets_dt.Rows[rws]["correction_clmn"].ToString());
+                                    int compresult = 0;
+                                    if (targets_dt.Rows[rws]["type_clmn"].ToString().Equals("Bar")) compresult = calcPercentBarComparisson(idealArr, currArr, err);
+                                    if (targets_dt.Rows[rws]["type_clmn"].ToString().Equals("Image")) compresult = calcPercentImageComparisson(idealArr, currArr, err);
+                                    //targets_dgv.Rows[rws].Cells["percentage_clmn"].Value = compresult;
+                                    if (!targets_dt.Rows[rws]["percentage_clmn"].ToString().Equals(compresult.ToString()))
+                                    {
+                                        targets_dt.Rows[rws]["percentage_clmn"] = compresult;
+                                        targets_dt.Rows[rws]["last_change"] = DateTime.Now;
+                                    }
+                                    targets_dt.Rows[rws]["idle"] = (DateTime.Now - Convert.ToDateTime(targets_dt.Rows[rws]["last_change"])).TotalMilliseconds;
                                 }
-                                targets_dt.Rows[rws]["idle"] = (DateTime.Now - Convert.ToDateTime(targets_dt.Rows[rws]["last_change"])).TotalMilliseconds;
+                                else // work on FieldImage
+                                {
+                                    Rectangle fieldWhereFind = RectFromString(targets_dt.Rows[rws]["coord_clmn"].ToString());
+                                    int[,] idealArr = null;
+                                    int[,] arrayWhereFind = null;
+                                    ImageConverter converter = new ImageConverter();
+                                    targets_dt.Rows[rws]["Current_value_clmn"] = (byte[])converter.ConvertTo(getPartOfBMP(bmp, fieldWhereFind), typeof(byte[]));
+                                    ByteArray2darr((byte[])targets_dt.Rows[rws]["Current_value_clmn"], fieldWhereFind, ref arrayWhereFind);
+                                    Bitmap idealBM = null;
+                                    using (var ms = new MemoryStream((byte[])targets_dt.Rows[rws]["ideal_value_clmn"]))
+                                    {
+                                        idealBM = new Bitmap(Bitmap.FromStream(ms));
+                                    };
+
+                                    //Bitmap idealBM = Bitmap.FromStream(targets_dt.Rows[rws]["ideal_value_clmn"] as Bitmap);
+                                    ByteArray2darr((byte[])targets_dt.Rows[rws]["ideal_value_clmn"], new Rectangle(0,0,idealBM.Width,idealBM.Height), ref idealArr);
+                                    
+                                }
                             }
                         }
                         catch (Exception ex)
@@ -633,72 +698,90 @@ namespace L2Runner
 
         private void pictureBoxMain_MouseDown(object sender, MouseEventArgs e)
         {
-
-            if (GettingOtherTarget)
+            if (e.Button == MouseButtons.Left)
             {
-                other_rect.X = e.X;
-                other_rect.Y = e.Y;
-                toolStripStatusLabel.Text = other_text + other_rect.Location.ToString();
-                StartDrawRect = true;
-                Control control = (Control)sender;
-                startPoint = control.PointToScreen(new Point(e.X, e.Y));
+                if (GettingOtherTarget)
+                {
+                    PictureBox pb = sender as PictureBox;
+                    double Wcorr = (double)pb.Width / (double)pb.Image.Width;
+                    double Hcorr = (double)pb.Height / (double)pb.Image.Height;
+                    other_rect.X = (int)((double)e.X / Wcorr);
+                    other_rect.Y = (int)((double)e.Y / Hcorr);
+                    toolStripStatusLabel.Text = other_text + other_rect.Location.ToString();
+                    StartDrawRect = true;
+                    Control control = (Control)sender;
+                    startPoint = control.PointToScreen(new Point(e.X, e.Y));
+                }
             }
         }
 
         private void pictureBoxMain_MouseUp(object sender, MouseEventArgs e)
         {
-            if (GettingOtherTarget)
+            if (e.Button == MouseButtons.Left)
             {
-                other_rect.Width = e.X - other_rect.X;
-                other_rect.Height = e.Y - other_rect.Y;
-                GettingOtherTarget = false;
-                toolStripStatusLabel.Text = other_text + other_rect.ToString();
-                try
+                if (GettingOtherTarget)
                 {
-                    targets_dt.Rows[targets_dgv.CurrentRow.Index]["coord_clmn"] = other_rect.ToString();
-                }
-                catch
-                { }
-                finally
-                {
-                    targets_dgv.CurrentRow.Cells["coord_clmn"].Value = other_rect.ToString();
-                }
-                CaptureWindows(mainwinptr);
-                Bitmap bmp;
-                bmp = new Bitmap(pictureBoxMain.Width, pictureBoxMain.Height);
-                bmp = (Bitmap)pictureBoxMain.Image;
-                targets_dgv.CurrentRow.Cells["ideal_value_clmn"].Value = getPartOfBMP(bmp, other_rect);
-                //targets_dt.Rows[targets_dgv.CurrentRow.Index]["ideal_value_clmn"] = getPartOfBMP(bmp, other_rect);
+                    PictureBox pb = sender as PictureBox;
+                    double Wcorr = (double)pb.Width / (double)pb.Image.Width;
+                    double Hcorr = (double)pb.Height / (double)pb.Image.Height;
 
-                ControlPaint.DrawReversibleFrame(theRectangle,
-          this.BackColor, FrameStyle.Dashed);
-
-                // Find out which controls intersect the rectangle and 
-                // change their color. The method uses the RectangleToScreen  
-                // method to convert the Control's client coordinates 
-                // to screen coordinates.
-                Rectangle controlRectangle;
-                for (int i = 0; i < Controls.Count; i++)
-                {
-                    controlRectangle = Controls[i].RectangleToScreen
-                  (Controls[i].ClientRectangle);
-                    if (controlRectangle.IntersectsWith(theRectangle))
+                    other_rect.Width = (int)((double)e.X / Wcorr) - other_rect.X;
+                    other_rect.Height = (int)((double)e.Y / Hcorr) - other_rect.Y;
+                    GettingOtherTarget = false;
+                    toolStripStatusLabel.Text = other_text + other_rect.ToString();
+                    string curcellName = targets_dgv.Columns[targets_dgv.CurrentCell.ColumnIndex].Name;
+                    string type = targets_dgv.Rows[targets_dgv.CurrentCell.RowIndex].Cells["type_clmn"].Value.ToString();
+                    try
                     {
-                        Controls[i].BackColor = Color.BurlyWood;
+                        if ((curcellName.Equals("coord_clmn"))|| (!type.Equals("FieldImage"))) targets_dt.Rows[targets_dgv.CurrentRow.Index]["coord_clmn"] = other_rect.ToString();
                     }
-                }
+                    catch
+                    { }
+                    finally
+                    {
+                        if (curcellName.Equals("coord_clmn")) targets_dgv.CurrentRow.Cells["coord_clmn"].Value = other_rect.ToString();
+                    }
+                    CaptureWindows(mainwinptr);
+                    
+                    if (!type.Equals("FieldImage") ||(type.Equals("FieldImage") && (targets_dgv.Columns[targets_dgv.CurrentCell.ColumnIndex].Name.Equals("ideal_value_clmn"))))
+                    {
+                        Bitmap bmp;
+                        bmp = new Bitmap(pictureBoxMain.Width, pictureBoxMain.Height);
+                        bmp = (Bitmap)pictureBoxMain.Image;
+                        targets_dgv.CurrentRow.Cells["ideal_value_clmn"].Value = getPartOfBMP(bmp, other_rect);
+                        //targets_dt.Rows[targets_dgv.CurrentRow.Index]["ideal_value_clmn"] = getPartOfBMP(bmp, other_rect);
+                    }
+                    ControlPaint.DrawReversibleFrame(theRectangle,
+              this.BackColor, FrameStyle.Dashed);
 
-                // Reset the rectangle.
-                theRectangle = new Rectangle(0, 0, 0, 0);
+                    // Find out which controls intersect the rectangle and 
+                    // change their color. The method uses the RectangleToScreen  
+                    // method to convert the Control's client coordinates 
+                    // to screen coordinates.
+                    Rectangle controlRectangle;
+                    for (int i = 0; i < Controls.Count; i++)
+                    {
+                        controlRectangle = Controls[i].RectangleToScreen
+                      (Controls[i].ClientRectangle);
+                        if (controlRectangle.IntersectsWith(theRectangle))
+                        {
+                            Controls[i].BackColor = Color.BurlyWood;
+                        }
+                    }
+
+                    // Reset the rectangle.
+                    theRectangle = new Rectangle(0, 0, 0, 0);
+                }
+                StartDrawRect = false;
+                CaptureWindows(mainwinptr);
+                this.Activate();
             }
-            StartDrawRect = false;
-            CaptureWindows(mainwinptr);
-            this.Activate();
         }
 
         private Bitmap getPartOfBMP(Bitmap _bmp, Rectangle _rect)
         {
-            Bitmap result = new Bitmap(_rect.Width, _rect.Height);
+
+            Bitmap result = new Bitmap(Math.Abs(_rect.Width),Math.Abs(_rect.Height));
             Graphics g = Graphics.FromImage(result);
             g.DrawImage(_bmp, 0, 0, _rect, GraphicsUnit.Pixel);
 
@@ -939,13 +1022,17 @@ namespace L2Runner
                         int y = startY;
                         for (y = 0; y <= startY; y++)
                         {
-                            Color fst = Color.FromArgb(_ideal[x, y]);
-                            Color scnd = Color.FromArgb(_current[x, y]);
-                            double r = ((255 - clrCompare(fst, scnd)) / 255)*100;
-                            if (r > errorValue)
+                            try
                             {
-                                SumPercents += r;
+                                Color fst = Color.FromArgb(_ideal[x, y]);
+                                Color scnd = Color.FromArgb(_current[x, y]);
+                                double r = ((255 - clrCompare(fst, scnd)) / 255) * 100;
+                                if (r > errorValue)
+                                {
+                                    SumPercents += r;
+                                }
                             }
+                            catch { }
                             totalPixels++;
                         }
                     }
@@ -978,16 +1065,14 @@ namespace L2Runner
         {
             if (e.ColumnIndex > -1)
             {
-                if (targets_dgv.Columns[e.ColumnIndex].Name == "coord_clmn")
+                string type = targets_dgv.Rows[e.RowIndex].Cells["type_clmn"].Value.ToString();
+
+                if ((targets_dgv.Columns[e.ColumnIndex].Name == "coord_clmn")|| ((targets_dgv.Columns[e.ColumnIndex].Name == "ideal_value_clmn") && (type.Equals("FieldImage"))))
                 {
                     GettingOtherTarget = true;
                     other_text = "Settings coords for " + targets_dgv.CurrentRow.Cells["name_clmn"].Value == null ? "" : targets_dgv.CurrentRow.Cells["name_clmn"].Value.ToString() + " ...";
                     //other_text = "Settings coords for " + targets_dt.Rows[targets_dgv.CurrentRow.Index]["name_clmn"] == null ? "" : targets_dt.Rows[targets_dgv.CurrentRow.Index]["name_clmn"].ToString() + " ...";
                     toolStripStatusLabel.Text = other_text;
-                }
-                if (targets_dgv.Columns[e.ColumnIndex].Name == "Current_value_clmn")
-                {
-
                 }
             }
         }
@@ -1107,7 +1192,7 @@ namespace L2Runner
         private void filter_txtbx_TextChanged(object sender, EventArgs e)
         {
             ProcessName = filter_txtbx.Text;
-            Properties.Settings.Default.filte_string = filter_txtbx.Text;
+            Properties.Settings.Default.filter_string = filter_txtbx.Text;
             Properties.Settings.Default.Save();
         }
 
@@ -1122,6 +1207,58 @@ namespace L2Runner
             {
                 MessageBox.Show(e.Exception.ToString());
             }
+        }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            TrackBar tb = sender as TrackBar;
+            double tbval = (double) tb.Value;
+            MainZoom += ((tbval-100)/100);
+            if ((pictureBoxMain.Image!=null) && ((pictureBoxMain.Width > 100) && (pictureBoxMain.Height > 70) || (MainZoom>1)))
+            {
+                pictureBoxMain.Width = (int)(pictureBoxMain.Image.Width * MainZoom);
+                pictureBoxMain.Height = (int)(pictureBoxMain.Image.Height * MainZoom);
+            }
+        }
+
+        private void TrackBar1_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta != 0) (sender as TrackBar).Value = 100;
+        }
+
+        private void trackBar1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Middle)
+            {
+                MainZoom = 1;
+                if ((pictureBoxMain.Image != null) && ((pictureBoxMain.Width > 100) && (pictureBoxMain.Height > 70) || (MainZoom > 1)))
+                {
+                    pictureBoxMain.Width = (int)(pictureBoxMain.Image.Width * MainZoom);
+                    pictureBoxMain.Height = (int)(pictureBoxMain.Image.Height * MainZoom);
+                }
+            }
+            TrackBar tb = sender as TrackBar;
+            tb.Value = 100;
+        }
+
+        private void contextMenu_otherDGV_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            string type = targets_dgv.Rows[targets_dgv.CurrentCell.RowIndex].Cells["type_clmn"].Value.ToString();
+            if (type.Equals("FieldImage"))
+            {
+                updateIdealValuesToolStripMenuItem.Enabled = false;
+                setSampleToFindToolStripMenuItem.Enabled = true;
+            }
+            else
+            {
+                updateIdealValuesToolStripMenuItem.Enabled = true;
+                setSampleToFindToolStripMenuItem.Enabled = false;
+            }
+        }
+
+        private void setSampleToFindToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            
         }
     }
 }
