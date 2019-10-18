@@ -67,7 +67,7 @@ namespace L2Runner
         // Change zoom on mouse scrooling
         private void PictureBoxMain_MouseWheel(object sender, MouseEventArgs e)
         {
-            
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -215,7 +215,7 @@ namespace L2Runner
             type_cmbbx.ValueMember = "Name";
             type_cmbbx.DisplayMember = "Name";
             targets_dgv.DataSource = targets_dt;
-            
+
             //type_cmbbx.Items.AddRange( "Bar", "Button", "Image");
             #endregion
 
@@ -445,6 +445,17 @@ namespace L2Runner
                             for (int rws = 0; rws < targets_dt.Rows.Count; rws++)
                             {
                                 string type = targets_dt.Rows[rws]["type_clmn"].ToString();
+                                string[] corr_val = targets_dt.Rows[rws]["correction_clmn"].ToString().Split('|');
+                                int pixel_err = 90;
+                                int image_err = 95;
+                                if (corr_val.Length > 0)
+                                {
+                                    if (corr_val[0] != "") pixel_err = Convert.ToInt32(corr_val[0]);
+                                }
+                                if (corr_val.Length > 1)
+                                {
+                                    if (corr_val[1] != "") image_err = Convert.ToInt32(corr_val[1]);
+                                }
                                 if (!type.Equals("FieldImage"))
                                 {
                                     Rectangle rcngl = RectFromString(targets_dt.Rows[rws]["coord_clmn"].ToString());
@@ -455,10 +466,16 @@ namespace L2Runner
                                     int[,] currArr = null;
                                     ByteArray2darr((byte[])targets_dt.Rows[rws]["ideal_value_clmn"], rcngl, ref idealArr);
                                     ByteArray2darr((byte[])targets_dt.Rows[rws]["Current_value_clmn"], rcngl, ref currArr);
-                                    int err = Convert.ToInt32(targets_dt.Rows[rws]["correction_clmn"].ToString());
-                                    int compresult = 0;
-                                    if (targets_dt.Rows[rws]["type_clmn"].ToString().Equals("Bar")) compresult = calcPercentBarComparisson(idealArr, currArr, err);
-                                    if (targets_dt.Rows[rws]["type_clmn"].ToString().Equals("Image")) compresult = calcPercentImageComparisson(idealArr, currArr, err);
+
+                                    string compresult = "0";
+                                    if (type.Equals("Bar"))
+                                    {
+                                        compresult = calcPercentBarComparisson(idealArr, currArr, pixel_err).ToString();
+                                    }
+                                    else                                   // if (targets_dt.Rows[rws]["type_clmn"].ToString().Equals("Image")) 
+                                    {
+                                        compresult = calcPercentImageComparisson(idealArr, currArr, type, pixel_err).ToString();
+                                    }
                                     //targets_dgv.Rows[rws].Cells["percentage_clmn"].Value = compresult;
                                     if (!targets_dt.Rows[rws]["percentage_clmn"].ToString().Equals(compresult.ToString()))
                                     {
@@ -482,8 +499,15 @@ namespace L2Runner
                                     };
 
                                     //Bitmap idealBM = Bitmap.FromStream(targets_dt.Rows[rws]["ideal_value_clmn"] as Bitmap);
-                                    ByteArray2darr((byte[])targets_dt.Rows[rws]["ideal_value_clmn"], new Rectangle(0,0,idealBM.Width,idealBM.Height), ref idealArr);
-                                    
+                                    ByteArray2darr((byte[])targets_dt.Rows[rws]["ideal_value_clmn"], new Rectangle(0, 0, idealBM.Width, idealBM.Height), ref idealArr);
+                                    string compresult = "";
+                                    compresult = calcPercentImageComparisson(idealArr, arrayWhereFind, type, pixel_err, image_err);
+                                    if (!targets_dt.Rows[rws]["percentage_clmn"].ToString().Equals(compresult.ToString()))
+                                    {
+                                        targets_dt.Rows[rws]["percentage_clmn"] = compresult;
+                                        targets_dt.Rows[rws]["last_change"] = DateTime.Now;
+                                    }
+                                    targets_dt.Rows[rws]["idle"] = (DateTime.Now - Convert.ToDateTime(targets_dt.Rows[rws]["last_change"])).TotalMilliseconds;
                                 }
                             }
                         }
@@ -506,11 +530,11 @@ namespace L2Runner
 
         private async void CheckConditions()
         {
-          //  Logging(" Start Checking");
+            //  Logging(" Start Checking");
             DateTime starttime = DateTime.Now;
             CheckingConditions = true;
             int rowsCount = scripts_dt.Rows.Count;
-            
+
             DataRow[] resultRows = scripts_dt.Select("result_script_clmn=true and nextuse_script_clmn <= '" + DateTime.Now + "'");
             #region conditions cheking
             //condition string format percent_cond;idle_cond;id....;id
@@ -703,10 +727,10 @@ namespace L2Runner
                 if (GettingOtherTarget)
                 {
                     PictureBox pb = sender as PictureBox;
-                    double Wcorr = (double)pb.Width / (double)pb.Image.Width;
-                    double Hcorr = (double)pb.Height / (double)pb.Image.Height;
-                    other_rect.X = (int)((double)e.X / Wcorr);
-                    other_rect.Y = (int)((double)e.Y / Hcorr);
+                    double Wcorr = pb.Width / (double)pb.Image.Width;
+                    double Hcorr = pb.Height / (double)pb.Image.Height;
+                    other_rect.X = (int)(e.X / Wcorr);
+                    other_rect.Y = (int)(e.Y / Hcorr);
                     toolStripStatusLabel.Text = other_text + other_rect.Location.ToString();
                     StartDrawRect = true;
                     Control control = (Control)sender;
@@ -722,18 +746,18 @@ namespace L2Runner
                 if (GettingOtherTarget)
                 {
                     PictureBox pb = sender as PictureBox;
-                    double Wcorr = (double)pb.Width / (double)pb.Image.Width;
-                    double Hcorr = (double)pb.Height / (double)pb.Image.Height;
+                    double Wcorr = pb.Width / (double)pb.Image.Width;
+                    double Hcorr = pb.Height / (double)pb.Image.Height;
 
-                    other_rect.Width = (int)((double)e.X / Wcorr) - other_rect.X;
-                    other_rect.Height = (int)((double)e.Y / Hcorr) - other_rect.Y;
+                    other_rect.Width = (int)(e.X / Wcorr) - other_rect.X;
+                    other_rect.Height = (int)(e.Y / Hcorr) - other_rect.Y;
                     GettingOtherTarget = false;
                     toolStripStatusLabel.Text = other_text + other_rect.ToString();
                     string curcellName = targets_dgv.Columns[targets_dgv.CurrentCell.ColumnIndex].Name;
                     string type = targets_dgv.Rows[targets_dgv.CurrentCell.RowIndex].Cells["type_clmn"].Value.ToString();
                     try
                     {
-                        if ((curcellName.Equals("coord_clmn"))|| (!type.Equals("FieldImage"))) targets_dt.Rows[targets_dgv.CurrentRow.Index]["coord_clmn"] = other_rect.ToString();
+                        if ((curcellName.Equals("coord_clmn")) || (!type.Equals("FieldImage"))) targets_dt.Rows[targets_dgv.CurrentRow.Index]["coord_clmn"] = other_rect.ToString();
                     }
                     catch
                     { }
@@ -742,8 +766,8 @@ namespace L2Runner
                         if (curcellName.Equals("coord_clmn")) targets_dgv.CurrentRow.Cells["coord_clmn"].Value = other_rect.ToString();
                     }
                     CaptureWindows(mainwinptr);
-                    
-                    if (!type.Equals("FieldImage") ||(type.Equals("FieldImage") && (targets_dgv.Columns[targets_dgv.CurrentCell.ColumnIndex].Name.Equals("ideal_value_clmn"))))
+
+                    if (!type.Equals("FieldImage") || (type.Equals("FieldImage") && (targets_dgv.Columns[targets_dgv.CurrentCell.ColumnIndex].Name.Equals("ideal_value_clmn"))))
                     {
                         Bitmap bmp;
                         bmp = new Bitmap(pictureBoxMain.Width, pictureBoxMain.Height);
@@ -781,7 +805,7 @@ namespace L2Runner
         private Bitmap getPartOfBMP(Bitmap _bmp, Rectangle _rect)
         {
 
-            Bitmap result = new Bitmap(Math.Abs(_rect.Width),Math.Abs(_rect.Height));
+            Bitmap result = new Bitmap(Math.Abs(_rect.Width), Math.Abs(_rect.Height));
             Graphics g = Graphics.FromImage(result);
             g.DrawImage(_bmp, 0, 0, _rect, GraphicsUnit.Pixel);
 
@@ -830,7 +854,7 @@ namespace L2Runner
             bmp = (Bitmap)pictureBoxMain.Image;
             pictureBoxMain.Image = bmp;
             Graphics g = Graphics.FromImage(pictureBoxMain.Image);
-            Rectangle rect = new Rectangle();
+            //Rectangle rect = new Rectangle();
 
         }
 
@@ -905,23 +929,6 @@ namespace L2Runner
                 arrayX++;
             }
 
-            /*for (int x = 0; x < _rect.Width; x++)
-            {
-                int arrayY = 0;
-                for (int y = 0; y < _rect.Height; y++)
-                {
-                    try
-                    {
-                        _array[arrayX, arrayY] = bmp.GetPixel(x, y).ToArgb();
-                        arrayY++;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "550");
-                    }
-                }
-                arrayX++;
-            }*/
         }
 
         public static unsafe byte[,,] BitmapToByteRgb(Bitmap bmp)
@@ -999,44 +1006,96 @@ namespace L2Runner
         }
 
         /// <summary>
-        /// Calculation Percent of comparisson of Image
+        /// Calculation Percent of comparisson of Image and finding in array
         /// </summary>
-        /// <param name="_ideal"></param>
-        /// <param name="_current"></param>
-        /// <param name="errorValue"></param>
+        /// <param name="_ideal">Array of source image</param>
+        /// <param name="_current">Array where need to find</param>
+        /// <param name="PixelError">Error kompensation per pixel</param>
+        /// <param name="ImageError">Error kompensation total on image</param>
         /// <returns></returns>
-        private int calcPercentImageComparisson(int[,] _ideal, int[,] _current, int? errorValue = 10)
+        private  string calcPercentImageComparisson(int[,] _ideal, int[,] _current, string _compareType, int? PixelError = 95, int? ImageError = 95)
         {
-            int result = -1;
-            if ((_ideal != null) && (_current != null))
+            string result = "";
+            if (_compareType == "Image")
             {
-                int startX = _ideal.GetLength(0) - 1;
-                int startY = _ideal.GetLength(1) - 1;
-                int x = startX;
-                if (startX != 0)
+                if ((_ideal != null) && (_current != null))
                 {
-                    double SumPercents = 0;
-                    double totalPixels = 0;
-                    for (x = startX; x >= 0; x--)
+                    int idealMaxX = _ideal.GetLength(0) - 1;
+                    int idealMaxY = _ideal.GetLength(1) - 1;
+                    int x = idealMaxX;
+                    if (idealMaxX != 0)
                     {
-                        int y = startY;
-                        for (y = 0; y <= startY; y++)
+                        double SumPercents = 0;
+                        double totalPixels = 0;
+                        for (x = idealMaxX; x >= 0; x--)
                         {
-                            try
+                            int y = idealMaxY;
+                            for (y = 0; y <= idealMaxY; y++)
                             {
-                                Color fst = Color.FromArgb(_ideal[x, y]);
-                                Color scnd = Color.FromArgb(_current[x, y]);
-                                double r = ((255 - clrCompare(fst, scnd)) / 255) * 100;
-                                if (r > errorValue)
+                                try
                                 {
-                                    SumPercents += r;
+                                    Color fst = Color.FromArgb(_ideal[x, y]);
+                                    Color scnd = Color.FromArgb(_current[x, y]);
+                                    double r = ((255 - clrCompare(fst, scnd)) / 255) * 100;
+                                    if (r > PixelError)
+                                    {
+                                        SumPercents += r;
+                                    }
                                 }
+                                catch { }
+                                totalPixels++;
                             }
-                            catch { }
-                            totalPixels++;
+                        }
+                        result = (SumPercents / totalPixels).ToString();
+                    }
+                }
+            }
+            else // Finder in _current Array
+            {
+                int idealMaxX = _ideal.GetLength(0) - 1;
+                int idealMaxY = _ideal.GetLength(1) - 1;
+                int currentMaxX = _current.GetLength(0) - 1;
+                int currentMaxY = _current.GetLength(1) - 1;
+
+                for (int curX = 0; curX < (currentMaxX - idealMaxX); curX++)
+                {
+                    for (int curY = 0; curY < (currentMaxY - idealMaxY); curY++)
+                    {
+                        double SumPercents = 0;
+                        double totalPixels = 0;
+                        double itog = 0;
+                        //for (int idX = 0; idX <idealMaxX; idX++)
+                        Parallel.For(0, idealMaxX, idX =>
+                          {
+                              for (int idY = 0; idY < idealMaxY; idY++)
+                              {
+                                  try
+                                  {
+                                      //Color fst = Color.FromArgb(_ideal[idX, idY]);
+                                      //Color scnd = Color.FromArgb(_current[curX + idX, curY + idY]);
+                                      int fst = _ideal[idX, idY];
+                                      int scnd = _current[curX + idX, curY + idY];
+                                      double compres =  intCompare(fst, scnd);
+                                      double r = ((255 - compres) / 255) * 100;
+                                      if (r > PixelError)
+                                      {
+                                          SumPercents += r;
+                                      }
+                                  }
+                                  catch { }
+                                  totalPixels++;
+                              }
+                          });
+                        itog = (SumPercents / totalPixels);
+                        if (itog >= ImageError)
+                        {
+                            if (result == "")
+                            {
+                                result = String.Format("{0}:{1}", curX, curY);
+                            }
+                            else result += String.Format("|{0}:{1}", curX, curY);
                         }
                     }
-                    result = (int)(SumPercents / totalPixels);
                 }
             }
             return result;
@@ -1050,6 +1109,37 @@ namespace L2Runner
             return result;
         }
 
+        private double intCompare(int _frst, int _scnd)
+        {
+            double result = 0;
+            
+             /*byte[] frst = BitConverter.GetBytes(_frst);
+             byte[] scnd = BitConverter.GetBytes(_scnd);
+             double deltaA = (double) frst[0] - (double)scnd[0];
+             double Apow = (deltaA * deltaA);
+             double deltaR = (double) frst[1] - (double)scnd[1];
+             double Rpow = (deltaR * deltaR);
+             double deltaG = (double )frst[2] - (double)scnd[2];
+             double Gpow = (deltaG * deltaG);
+             double deltaB = (double) frst[3] - (double)scnd[3];
+             double Bpow = (deltaB * deltaB);*/
+
+            
+            int resInt = (_frst^_scnd);
+            byte[] btRes = BitConverter.GetBytes(resInt);
+            double deltaA = (double)btRes[0];
+            double Apow = (deltaA * deltaA);
+            double deltaR = (double)btRes[1];
+            double Rpow = (deltaR * deltaR);
+            double deltaG = (double)btRes[2];
+            double Gpow = (deltaG * deltaG);
+            double deltaB = (double)btRes[3];
+            double Bpow = (deltaB * deltaB); 
+            
+
+            result = Math.Sqrt(Apow + Rpow + Gpow + Bpow);
+            return result;
+        }
         private void targets_dgv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             /* if (targets_dgv.DataSource != null)
@@ -1067,7 +1157,7 @@ namespace L2Runner
             {
                 string type = targets_dgv.Rows[e.RowIndex].Cells["type_clmn"].Value.ToString();
 
-                if ((targets_dgv.Columns[e.ColumnIndex].Name == "coord_clmn")|| ((targets_dgv.Columns[e.ColumnIndex].Name == "ideal_value_clmn") && (type.Equals("FieldImage"))))
+                if ((targets_dgv.Columns[e.ColumnIndex].Name == "coord_clmn") || ((targets_dgv.Columns[e.ColumnIndex].Name == "ideal_value_clmn") && (type.Equals("FieldImage"))))
                 {
                     GettingOtherTarget = true;
                     other_text = "Settings coords for " + targets_dgv.CurrentRow.Cells["name_clmn"].Value == null ? "" : targets_dgv.CurrentRow.Cells["name_clmn"].Value.ToString() + " ...";
@@ -1079,7 +1169,7 @@ namespace L2Runner
 
         private void updateIdealValuesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+
             CaptureWindows(mainwinptr);
             Bitmap bmp = ((Bitmap)pictureBoxMain.Image);
             if (targets_dgv.CurrentRow.Cells["type_clmn"].Value.ToString().Equals("Bar"))
@@ -1135,10 +1225,10 @@ namespace L2Runner
 
         private void dgv_script_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex>=0)
-            { 
-            DataGridViewColumn dgvc = dgv_script.Columns[e.ColumnIndex];
-            DataGridViewCell dgvcell = dgv_script.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            if (e.ColumnIndex >= 0)
+            {
+                DataGridViewColumn dgvc = dgv_script.Columns[e.ColumnIndex];
+                DataGridViewCell dgvcell = dgv_script.Rows[e.RowIndex].Cells[e.ColumnIndex];
                 if (dgvc.Name == "action_script_clmn")
                 {
                     L2KeyBoardForm kb = new L2KeyBoardForm();
@@ -1212,9 +1302,9 @@ namespace L2Runner
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
             TrackBar tb = sender as TrackBar;
-            double tbval = (double) tb.Value;
-            MainZoom += ((tbval-100)/100);
-            if ((pictureBoxMain.Image!=null) && ((pictureBoxMain.Width > 100) && (pictureBoxMain.Height > 70) || (MainZoom>1)))
+            double tbval = tb.Value;
+            MainZoom += ((tbval - 100) / 100);
+            if ((pictureBoxMain.Image != null) && ((pictureBoxMain.Width > 100) && (pictureBoxMain.Height > 70) || (MainZoom > 1)))
             {
                 pictureBoxMain.Width = (int)(pictureBoxMain.Image.Width * MainZoom);
                 pictureBoxMain.Height = (int)(pictureBoxMain.Image.Height * MainZoom);
@@ -1258,7 +1348,7 @@ namespace L2Runner
 
         private void setSampleToFindToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+
         }
     }
 }
