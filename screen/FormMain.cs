@@ -39,6 +39,7 @@ namespace L2Runner
         Bitmap pic1;
         double MainZoom = 1;
         double timeRefresh = 0.1;
+        double previous_time = 0;
 
         bool TrackingIsActive = false;
         bool CheckingConditions = false;
@@ -636,7 +637,8 @@ namespace L2Runner
             //Logging(" Ending checking in " + (DateTime.Now - starttime).TotalMilliseconds);
             if (toolStripStatusLabel.Text != "")
             {
-                toolStripStatusLabel.Text = (((Convert.ToDouble(toolStripStatusLabel.Text) + (DateTime.Now - starttime).TotalMilliseconds)) / 2).ToString();
+                previous_time = ((previous_time + (DateTime.Now - starttime).TotalMilliseconds)) / 2;
+                toolStripStatusLabel.Text = previous_time.ToString();
             }
             else
             {
@@ -731,7 +733,7 @@ namespace L2Runner
                     double Hcorr = pb.Height / (double)pb.Image.Height;
                     other_rect.X = (int)(e.X / Wcorr);
                     other_rect.Y = (int)(e.Y / Hcorr);
-                    toolStripStatusLabel.Text = other_text + other_rect.Location.ToString();
+                   toolStripStatusLabel.Text = other_text + other_rect.Location.ToString();
                     StartDrawRect = true;
                     Control control = (Control)sender;
                     startPoint = control.PointToScreen(new Point(e.X, e.Y));
@@ -843,7 +845,6 @@ namespace L2Runner
                 // again.  
                 ControlPaint.DrawReversibleFrame(theRectangle,
               this.BackColor, FrameStyle.Dashed);
-
             }
         }
 
@@ -1153,7 +1154,7 @@ namespace L2Runner
 
         private void other_targets_dgv_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex > -1)
+            if ((e.ColumnIndex > -1) && (e.RowIndex>-1))
             {
                 string type = targets_dgv.Rows[e.RowIndex].Cells["type_clmn"].Value.ToString();
 
