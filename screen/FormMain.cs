@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,6 +14,12 @@ namespace L2Runner
 {
     public partial class FormMain : Form
     {
+        private struct parameter
+        {
+            public int w;
+            public int h;
+            public User32.Rect r;
+        }
         ushort WM_SYSKEYDOWN = 0x0104;
         ushort WM_KEYDOWN = 0x0100;
 
@@ -37,8 +44,10 @@ namespace L2Runner
         Random random = new Random(DateTime.Now.Millisecond);
         DataTable ImageTypes = new DataTable();
         Bitmap pic1;
+        Bitmap mainBitmap;
+        Bitmap backBitmap;
         double MainZoom = 1;
-        double timeRefresh = 0.1;
+        decimal timeRefresh = 1;
         double previous_time = 0;
 
         bool TrackingIsActive = false;
@@ -51,6 +60,7 @@ namespace L2Runner
         public FormMain()
         {
             InitializeComponent();
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             ProcessName = Properties.Settings.Default.filter_string;
             pictureBoxMain.MouseWheel += PictureBoxMain_MouseWheel;
             trackBar1.MouseWheel += TrackBar1_MouseWheel;
@@ -327,6 +337,8 @@ namespace L2Runner
         {
             if (intPtr != IntPtr.Zero)
             {
+                try
+                { 
                 int i = 0;
                 this.Hide();
                 User32.SetForegroundWindow(intPtr);
@@ -336,20 +348,24 @@ namespace L2Runner
                 User32.GetWindowRect(intPtr, ref rect);
                 int width = rect.right - rect.left;
                 int height = rect.bottom - rect.top;
-                if ((width > 0) && (height > 0))
-                {
-                    var bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-                    Graphics graphics = Graphics.FromImage(bmp);
-                    graphics.CopyFromScreen(rect.left, rect.top, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
-                    // bmp.Save("test_" + i.ToString() + ".png", ImageFormat.Png);
-                    pictureBoxMain.Image = bmp;
-                    switch (i)
+                    if ((width > 0) && (height > 0))
                     {
-                        case 1:
-                            pic1 = bmp;
-                            pictureBox1.Image = pic1;
-                            break;
+                        var bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                        Graphics graphics = Graphics.FromImage(bmp);
+                        graphics.CopyFromScreen(rect.left, rect.top, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
+                        // bmp.Save("test_" + i.ToString() + ".png", ImageFormat.Png);
+                        pictureBoxMain.Image = bmp;
+                        switch (i)
+                        {
+                            case 1:
+                                pic1 = bmp;
+                                pictureBox1.Image = pic1;
+                                break;
+                        }
                     }
+                }
+                finally
+                {
                     this.Show();
                     this.Activate();
                     showActiveWindow();
@@ -412,11 +428,22 @@ namespace L2Runner
             Properties.Settings.Default.Save();
         }
 
+        private void GetBMPFromScrenshot(int width, int height, User32.Rect rect)
+        {
+            backBitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            Graphics graphics = Graphics.FromImage(backBitmap);
+            graphics.CopyFromScreen(rect.left, rect.top, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
+            graphics.Dispose();
+            //await Task.Delay((int)(timeRefresh * 1000));
+            //return bmp;
+        }
+
         private async Task Tracking()
         {
             var items = Process.GetProcessesByName(ProcessName);
             do
             {
+                DateTime starttime = DateTime.Now;
                 int i = 0;
                 foreach (var proc in items)
                 {
@@ -427,7 +454,6 @@ namespace L2Runner
                         {
                             continue;
                         }
-                        Bitmap bmp = null;
                         try
                         {
                             var rect = new User32.Rect();
@@ -435,16 +461,34 @@ namespace L2Runner
 
                             int width = rect.right - rect.left;
                             int height = rect.bottom - rect.top;
+                            if (mainBitmap == null)
+                            {
+                                GetBMPFromScrenshot(width, height, rect);
+                                mainBitmap = backBitmap;
+                            }
 
-                            bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-                            Graphics graphics = Graphics.FromImage(bmp);
-                            graphics.CopyFromScreen(rect.left, rect.top, 0, 0, new Size(width, height), CopyPixelOperation.SourceCopy);
-                            graphics.Dispose();
+
+                            if (backgroundWorker.IsBusy != true)
+                            {
+                                // Start the asynchronous operation.
+
+                                parameter param;
+                                param.w = width;
+                                param.h = height;
+                                param.r = rect;
+                                backgroundWorker.RunWorkerAsync(param);
+                            }
+                            //bmporig = GetBMPFromScrenshot(width, height, rect);
+                            //int[] bmparr = img2Array(bmporig);
+                            //getArrayFromBMP(bmp,new Rectangle(0,0,bmp.Width,bmp.Height),ref bmparr);
 
                             // calculate cp/ho/mp bars
-
                             for (int rws = 0; rws < targets_dt.Rows.Count; rws++)
+                            //Parallel.For(0, targets_dt.Rows.Count, rws =>
                             {
+                                //Bitmap bmp = Array2img(bmparr, width, height);
+                                /*pictureBox1.Image = null;
+                                pictureBox1.Image = bmp;*/
                                 string type = targets_dt.Rows[rws]["type_clmn"].ToString();
                                 string[] corr_val = targets_dt.Rows[rws]["correction_clmn"].ToString().Split('|');
                                 int pixel_err = 90;
@@ -462,12 +506,17 @@ namespace L2Runner
                                     Rectangle rcngl = RectFromString(targets_dt.Rows[rws]["coord_clmn"].ToString());
                                     //targets_dgv.Rows[rws].Cells["Current_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
                                     ImageConverter converter = new ImageConverter();
-                                    targets_dt.Rows[rws]["Current_value_clmn"] = (byte[])converter.ConvertTo(getPartOfBMP(bmp, rcngl), typeof(byte[]));
+                                    byte[] arr1 = (byte[])converter.ConvertTo(getPartOfBMP(mainBitmap, rcngl), typeof(byte[]));
+                                    //byte[] arr2 = getBytesFrom2DArray(bmparr, width, rcngl);
+                                    targets_dt.Rows[rws]["Current_value_clmn"] = arr1;
+                                    //    targets_dt.Rows[rws]["Current_value_clmn"] = getBytesFrom2DArray(bmparr,rcngl);
                                     int[,] idealArr = null;
                                     int[,] currArr = null;
-                                    ByteArray2darr((byte[])targets_dt.Rows[rws]["ideal_value_clmn"], rcngl, ref idealArr);
-                                    ByteArray2darr((byte[])targets_dt.Rows[rws]["Current_value_clmn"], rcngl, ref currArr);
+                                    ByteArray2darr((byte[])(targets_dt.Rows[rws]["ideal_value_clmn"] == DBNull.Value ? null : targets_dt.Rows[rws]["ideal_value_clmn"]), rcngl, ref idealArr);
+                                    ByteArray2darr((byte[])(targets_dt.Rows[rws]["Current_value_clmn"] == DBNull.Value ? null : targets_dt.Rows[rws]
+                                       ["Current_value_clmn"]), rcngl, ref currArr);
 
+                                    //double bbc = btbtcomp((byte[])(targets_dt.Rows[rws]["ideal_value_clmn"]), (byte[])(targets_dt.Rows[rws]["Current_value_clmn"]));
                                     string compresult = "0";
                                     if (type.Equals("Bar"))
                                     {
@@ -491,7 +540,10 @@ namespace L2Runner
                                     int[,] idealArr = null;
                                     int[,] arrayWhereFind = null;
                                     ImageConverter converter = new ImageConverter();
-                                    targets_dt.Rows[rws]["Current_value_clmn"] = (byte[])converter.ConvertTo(getPartOfBMP(bmp, fieldWhereFind), typeof(byte[]));
+                                    byte[] arr1 = (byte[])converter.ConvertTo(getPartOfBMP(mainBitmap, fieldWhereFind), typeof(byte[]));
+                                    //byte[] arr2 = getBytesFrom2DArray(bmparr, width, fieldWhereFind);
+                                    //targets_dt.Rows[rws]["Current_value_clmn"] = (byte[])converter.ConvertTo(getPartOfBMP(bmparr, fieldWhereFind), typeof(byte[]));
+                                    targets_dt.Rows[rws]["Current_value_clmn"] = arr1;
                                     ByteArray2darr((byte[])targets_dt.Rows[rws]["Current_value_clmn"], fieldWhereFind, ref arrayWhereFind);
                                     Bitmap idealBM = null;
                                     using (var ms = new MemoryStream((byte[])targets_dt.Rows[rws]["ideal_value_clmn"]))
@@ -510,29 +562,83 @@ namespace L2Runner
                                     }
                                     targets_dt.Rows[rws]["idle"] = (DateTime.Now - Convert.ToDateTime(targets_dt.Rows[rws]["last_change"])).TotalMilliseconds;
                                 }
-                            }
+                                //bmp.Dispose();
+                                //GC.Collect();
+                            }//);
                         }
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
                         }
-                        if (bmp == null)
+                        if (mainBitmap == null)
                         {
                             continue;
                         }
-                        bmp.Dispose();
+                        //bmporig.Dispose();
                     }
                 }
                 if (!CheckingConditions) CheckConditions();
-                await Task.Delay((int)(timeRefresh * 1000));
+                await Task.Delay((int)(timeRefresh));
                 // Thread.Sleep(1000);
+                if (toolStripStatusLabel.Text != "")
+                {
+                    previous_time = ((previous_time + (DateTime.Now - starttime).TotalMilliseconds)) / 2;
+                    toolStripStatusLabel.Text =String.Format("{0:f2} FPS", (1 / (previous_time / 1000)));
+                }
+                else
+                {
+                    toolStripStatusLabel.Text = String.Format("{0:f2} FPS", ((DateTime.Now - starttime).TotalMilliseconds));
+                }
+                //await Task.Delay((int)(timeRefresh * 1000));
             } while (TrackingIsActive);
+        }
+
+        private double btbtcomp(byte[] frst, byte[] scnd)
+        {
+            double result = 0;
+            int lenght = frst.Length;
+            if (scnd.Length != lenght)
+            {
+                result = -100;
+            }
+            else
+            {
+                double pass = 0;
+                for (int i = 0; i < lenght; i++)
+                {
+                    if (frst[i] == scnd[i]) pass++;
+                }
+                result = (pass / lenght) * 100;
+            }
+            return result;
+        }
+
+        private byte[] getBytesFrom2DArray(int[] array, int _widht, Rectangle rect)
+        {
+            byte[] result = new byte[rect.Width * rect.Height * 4];
+            //int arrWidth = array.GetLength(0);
+            int byteCnt = 0;
+            for (int x = rect.X; x < (rect.X + rect.Width); x++)
+            {
+                for (int y = rect.Y; y < (rect.Y + rect.Height); y++)
+                {
+                    byte[] nb = BitConverter.GetBytes(array[x + y * _widht]);
+                    result[byteCnt] = nb[0];
+                    byteCnt++;
+                    result[byteCnt] = nb[1];
+                    byteCnt++;
+                    result[byteCnt] = nb[2];
+                    byteCnt++;
+                    result[byteCnt] = nb[3];
+                    byteCnt++;
+                }
+            }
+            return result;
         }
 
         private async void CheckConditions()
         {
             //  Logging(" Start Checking");
-            DateTime starttime = DateTime.Now;
             CheckingConditions = true;
             int rowsCount = scripts_dt.Rows.Count;
 
@@ -635,15 +741,6 @@ namespace L2Runner
             }
             #endregion
             //Logging(" Ending checking in " + (DateTime.Now - starttime).TotalMilliseconds);
-            if (toolStripStatusLabel.Text != "")
-            {
-                previous_time = ((previous_time + (DateTime.Now - starttime).TotalMilliseconds)) / 2;
-                toolStripStatusLabel.Text = previous_time.ToString();
-            }
-            else
-            {
-                toolStripStatusLabel.Text = ((DateTime.Now - starttime).TotalMilliseconds).ToString();
-            }
             CheckingConditions = false;
         }
 
@@ -733,7 +830,7 @@ namespace L2Runner
                     double Hcorr = pb.Height / (double)pb.Image.Height;
                     other_rect.X = (int)(e.X / Wcorr);
                     other_rect.Y = (int)(e.Y / Hcorr);
-                   toolStripStatusLabel.Text = other_text + other_rect.Location.ToString();
+                    toolStripStatusLabel.Text = other_text + other_rect.Location.ToString();
                     StartDrawRect = true;
                     Control control = (Control)sender;
                     startPoint = control.PointToScreen(new Point(e.X, e.Y));
@@ -806,11 +903,9 @@ namespace L2Runner
 
         private Bitmap getPartOfBMP(Bitmap _bmp, Rectangle _rect)
         {
-
             Bitmap result = new Bitmap(Math.Abs(_rect.Width), Math.Abs(_rect.Height));
             Graphics g = Graphics.FromImage(result);
             g.DrawImage(_bmp, 0, 0, _rect, GraphicsUnit.Pixel);
-
             return result;
         }
 
@@ -881,23 +976,33 @@ namespace L2Runner
                         _array[arrayX, arrayY] = bytearr[0, y, x] << 8;
                         _array[arrayX, arrayY] = bytearr[1, y, x] << 8;
                         _array[arrayX, arrayY] = bytearr[2, y, x] << 8;
-                        //_array[arrayX, arrayY] = b.GetPixel(x, y).ToArgb();
                         arrayY++;
                     }
                     arrayX++;
                 }
-                /*
-                for (int x = _rect.X; x < (_rect.X + _rect.Width); x++)
-                {
-                    int arrayY = 0;
-                    for (int y = _rect.Y; y < (_rect.Y + _rect.Height); y++)
-                    {
-                        _array[arrayX, arrayY] = b.GetPixel(x, y).ToArgb();
-                        arrayY++;
-                    }
-                    arrayX++;
-                }*/
             }
+            // alternate arraycopy
+            /*
+            int height = _bmp.Height;
+            int width = _bmp.Width;
+            _array = new int[width, height];
+
+            BitmapData bd = _bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly,
+                PixelFormat.Format32bppRgb);
+            int byteCount = bd.Stride * (height);
+            int[] bytes = new int[byteCount / 4];
+            Marshal.Copy(bd.Scan0, bytes, 0, byteCount / 4);
+            _bmp.UnlockBits(bd);
+
+            int nxt = 0;
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    _array[x, y] = (int)bytes[nxt];
+                    nxt++;
+                }
+            }*/
         }
 
         private void ByteArray2darr(byte[] _arr, Rectangle _rect, ref int[,] _array)
@@ -909,27 +1014,26 @@ namespace L2Runner
             };
             byte[,,] bytearr = BitmapToByteRgb(bmp);
             _array = new int[bmp.Width, bmp.Height];
-            int arrayX = 0;
-            for (int x = 0; x < _rect.Width; x++)
-            {
-                int arrayY = 0;
-                for (int y = 0; y < _rect.Height; y++)
-                {
-                    try
-                    {
-                        _array[arrayX, arrayY] = bytearr[0, y, x] << 8; //bmp.GetPixel(x, y).ToArgb();
-                        _array[arrayX, arrayY] = bytearr[1, y, x] << 8;
-                        _array[arrayX, arrayY] = bytearr[2, y, x] << 8;
-                        arrayY++;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "550");
-                    }
-                }
-                arrayX++;
-            }
-
+            int wid = bmp.Width;
+            int hei = bmp.Height;
+            int[,] newarr = new int[bmp.Width, bmp.Height]; ;
+            Parallel.For(0, wid, x =>
+             {
+                 for (int y = 0; y < hei; y++)
+                 {
+                     try
+                     {
+                         newarr[x, y] = bytearr[0, y, x] << 8; //bmp.GetPixel(x, y).ToArgb();
+                 newarr[x, y] = bytearr[1, y, x] << 8;
+                         newarr[x, y] = bytearr[2, y, x] << 8;
+                     }
+                     catch (Exception ex)
+                     {
+                         MessageBox.Show(ex.Message, "550");
+                     }
+                 }
+             });
+            _array = newarr;
         }
 
         public static unsafe byte[,,] BitmapToByteRgb(Bitmap bmp)
@@ -963,6 +1067,55 @@ namespace L2Runner
             }
             return res;
         }
+
+        private int[] img2Array(Bitmap bitmap)
+        {
+            int height = bitmap.Height;
+            int width = bitmap.Width;
+            uint[,] colors = new uint[width, height];
+
+            //uint[,] res = new uint[height, width];
+            BitmapData bd = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly,
+                PixelFormat.Format32bppRgb);
+            int byteCount = bd.Stride * (height);
+            int[] bytes = new int[byteCount / 4];
+            Marshal.Copy(bd.Scan0, bytes, 0, byteCount / 4);
+            bitmap.UnlockBits(bd);
+            return bytes;
+        }
+
+        private unsafe Bitmap Array2img(uint[,] colors, int Width, int Height)
+        {
+            Bitmap bitmap = new Bitmap(Width, Height);
+            byte[] ByteImg = new byte[Width * Height * 4];
+            int nxt = 0;
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    byte[] nb = BitConverter.GetBytes(colors[x, y]);
+                    ByteImg[nxt] = nb[0];
+                    nxt++;
+                    ByteImg[nxt] = nb[1];
+                    nxt++;
+                    ByteImg[nxt] = nb[2];
+                    nxt++;
+                    ByteImg[nxt] = nb[3];
+                    nxt++;
+                }
+            }
+            //IntPtr addr = Marshal.UnsafeAddrOfPinnedArrayElement(colors, 0);
+            /*using (MemoryStream ms = new MemoryStream(ByteImg))
+            {
+                bitmap = new Bitmap(Bitmap.FromStream(ms));
+            };*/
+            BitmapData bd = bitmap.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly,
+                PixelFormat.Format32bppRgb);
+            Marshal.Copy(ByteImg, 0, bd.Scan0, ByteImg.Length);
+            bitmap.UnlockBits(bd);
+            return bitmap;
+        }
+
 
         /// <summary>
         /// Calculation Percent of comparisson of Bar
@@ -1014,7 +1167,7 @@ namespace L2Runner
         /// <param name="PixelError">Error kompensation per pixel</param>
         /// <param name="ImageError">Error kompensation total on image</param>
         /// <returns></returns>
-        private  string calcPercentImageComparisson(int[,] _ideal, int[,] _current, string _compareType, int? PixelError = 95, int? ImageError = 95)
+        private string calcPercentImageComparisson(int[,] _ideal, int[,] _current, string _compareType, int? PixelError = 95, int? ImageError = 95)
         {
             string result = "";
             if (_compareType == "Image")
@@ -1023,31 +1176,35 @@ namespace L2Runner
                 {
                     int idealMaxX = _ideal.GetLength(0) - 1;
                     int idealMaxY = _ideal.GetLength(1) - 1;
-                    int x = idealMaxX;
+                    //int x = idealMaxX;
                     if (idealMaxX != 0)
                     {
                         double SumPercents = 0;
                         double totalPixels = 0;
-                        for (x = idealMaxX; x >= 0; x--)
+                        for (int x = idealMaxX; x >= 0; x--)
+                        //Parallel.For(0, idealMaxX, x =>
                         {
-                            int y = idealMaxY;
-                            for (y = 0; y <= idealMaxY; y++)
+                            for (int y = 0; y <= idealMaxY; y++)
                             {
                                 try
                                 {
                                     Color fst = Color.FromArgb(_ideal[x, y]);
                                     Color scnd = Color.FromArgb(_current[x, y]);
-                                    double r = ((255 - clrCompare(fst, scnd)) / 255) * 100;
-                                    if (r > PixelError)
+                                    double r = clrCompare(fst, scnd);
+                                    if (r < PixelError)
                                     {
-                                        SumPercents += r;
+                                        SumPercents++;
+                                    }
+                                    else
+                                    {
+                                        //        MessageBox.Show(r.ToString());
                                     }
                                 }
                                 catch { }
                                 totalPixels++;
                             }
-                        }
-                        result = (SumPercents / totalPixels).ToString();
+                        }//);
+                        result = String.Format("{0:f4}", (SumPercents / totalPixels) * 100);
                     }
                 }
             }
@@ -1072,11 +1229,11 @@ namespace L2Runner
                               {
                                   try
                                   {
-                                      //Color fst = Color.FromArgb(_ideal[idX, idY]);
-                                      //Color scnd = Color.FromArgb(_current[curX + idX, curY + idY]);
-                                      int fst = _ideal[idX, idY];
+                              //Color fst = Color.FromArgb(_ideal[idX, idY]);
+                              //Color scnd = Color.FromArgb(_current[curX + idX, curY + idY]);
+                              int fst = _ideal[idX, idY];
                                       int scnd = _current[curX + idX, curY + idY];
-                                      double compres =  intCompare(fst, scnd);
+                                      double compres = intCompare(fst, scnd);
                                       double r = ((255 - compres) / 255) * 100;
                                       if (r > PixelError)
                                       {
@@ -1106,37 +1263,38 @@ namespace L2Runner
         private double clrCompare(Color _frst, Color _scnd)
         {
             double result = 0;
-            result = Math.Sqrt(Math.Pow(_frst.R - _scnd.R, 2) + Math.Pow(_frst.G - _scnd.G, 2) + Math.Pow(_frst.B - _scnd.B, 2));
+            //result = Math.Sqrt((Math.Pow(_frst.R - _scnd.R, 2) + Math.Pow(_frst.G - _scnd.G, 2) + Math.Pow(_frst.B - _scnd.B, 2)));
+            result = (Math.Abs((double)_frst.R - (double)_scnd.R) + Math.Abs((double)_frst.G - (double)_scnd.G) + Math.Abs((double)_frst.B - (double)_scnd.B))/3;
             return result;
         }
 
         private double intCompare(int _frst, int _scnd)
         {
             double result = 0;
-            
-             /*byte[] frst = BitConverter.GetBytes(_frst);
-             byte[] scnd = BitConverter.GetBytes(_scnd);
-             double deltaA = (double) frst[0] - (double)scnd[0];
-             double Apow = (deltaA * deltaA);
-             double deltaR = (double) frst[1] - (double)scnd[1];
-             double Rpow = (deltaR * deltaR);
-             double deltaG = (double )frst[2] - (double)scnd[2];
-             double Gpow = (deltaG * deltaG);
-             double deltaB = (double) frst[3] - (double)scnd[3];
-             double Bpow = (deltaB * deltaB);*/
 
-            
-            int resInt = (_frst^_scnd);
-            byte[] btRes = BitConverter.GetBytes(resInt);
-            double deltaA = (double)btRes[0];
+            /*byte[] frst = BitConverter.GetBytes(_frst);
+            byte[] scnd = BitConverter.GetBytes(_scnd);
+            double deltaA = (double) frst[0] - (double)scnd[0];
             double Apow = (deltaA * deltaA);
-            double deltaR = (double)btRes[1];
+            double deltaR = (double) frst[1] - (double)scnd[1];
             double Rpow = (deltaR * deltaR);
-            double deltaG = (double)btRes[2];
+            double deltaG = (double )frst[2] - (double)scnd[2];
             double Gpow = (deltaG * deltaG);
-            double deltaB = (double)btRes[3];
-            double Bpow = (deltaB * deltaB); 
-            
+            double deltaB = (double) frst[3] - (double)scnd[3];
+            double Bpow = (deltaB * deltaB);*/
+
+
+            int resInt = (_frst ^ _scnd);
+            byte[] btRes = BitConverter.GetBytes(resInt);
+            double deltaA = btRes[0];
+            double Apow = (deltaA * deltaA);
+            double deltaR = btRes[1];
+            double Rpow = (deltaR * deltaR);
+            double deltaG = btRes[2];
+            double Gpow = (deltaG * deltaG);
+            double deltaB = btRes[3];
+            double Bpow = (deltaB * deltaB);
+
 
             result = Math.Sqrt(Apow + Rpow + Gpow + Bpow);
             return result;
@@ -1154,7 +1312,7 @@ namespace L2Runner
 
         private void other_targets_dgv_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if ((e.ColumnIndex > -1) && (e.RowIndex>-1))
+            if ((e.ColumnIndex > -1) && (e.RowIndex > -1))
             {
                 string type = targets_dgv.Rows[e.RowIndex].Cells["type_clmn"].Value.ToString();
 
@@ -1178,7 +1336,13 @@ namespace L2Runner
                 string coords = targets_dgv.CurrentRow.Cells["coord_clmn"].Value.ToString();
                 Rectangle rcngl = RectFromString(coords);
                 if ((bmp != null) && (rcngl != new Rectangle(0, 0, 0, 0))) targets_dgv.CurrentRow.Cells["ideal_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
-                //targets_dt.Rows[rws]["ideal_value_clmn"] = getPartOfBMP(bmp, rcngl);
+                //targets_dt.Rows[CurrentRow]["ideal_value_clmn"] = getPartOfBMP(bmp, rcngl);
+            }
+            else
+            {
+                string coords = targets_dgv.CurrentRow.Cells["coord_clmn"].Value.ToString();
+                Rectangle rcngl = RectFromString(coords);
+                if ((bmp != null) && (rcngl != new Rectangle(0, 0, 0, 0))) targets_dgv.CurrentRow.Cells["ideal_value_clmn"].Value = getPartOfBMP(bmp, rcngl);
             }
         }
 
@@ -1350,6 +1514,24 @@ namespace L2Runner
         private void setSampleToFindToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void backgroundWorker_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            mainBitmap = backBitmap;
+        }
+
+        private void backgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            parameter p = (parameter) e.Argument;
+            GetBMPFromScrenshot(p.w,p.h,p.r);
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            timeRefresh = RefreshUpDown.Value;
+            Properties.Settings.Default.RefreshTime = RefreshUpDown.Value;
+            Properties.Settings.Default.Save();
         }
     }
 }

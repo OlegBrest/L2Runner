@@ -29,15 +29,15 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.find_windows_bttn = new System.Windows.Forms.Button();
             this.pictureBoxMain = new System.Windows.Forms.PictureBox();
             this.buttonTracking = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.contextMenu_otherDGV = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -53,16 +53,6 @@
             this.winname_clients_dgv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.winhdr_clients_dgv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.log = new System.Windows.Forms.ListBox();
-            this.targets_dgv = new L2Runner.MyDGrV();
-            this.name_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.type_clmn = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.coord_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.percentage_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ideal_value_clmn = new System.Windows.Forms.DataGridViewImageColumn();
-            this.Current_value_clmn = new System.Windows.Forms.DataGridViewImageColumn();
-            this.correction_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.last_change = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.idle = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.panel4 = new System.Windows.Forms.Panel();
             this.dgv_script = new System.Windows.Forms.DataGridView();
@@ -75,10 +65,23 @@
             this.result_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.delay_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nextuse_script_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.RefreshUpDown = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.targets_dgv = new L2Runner.MyDGrV();
+            this.name_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.type_clmn = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.coord_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.percentage_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ideal_value_clmn = new System.Windows.Forms.DataGridViewImageColumn();
+            this.Current_value_clmn = new System.Windows.Forms.DataGridViewImageColumn();
+            this.correction_clmn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.last_change = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.idle = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.panel3.SuspendLayout();
             this.contextMenu_otherDGV.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -90,10 +93,11 @@
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.clients_dgv)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).BeginInit();
             this.tabPage2.SuspendLayout();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_script)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.RefreshUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).BeginInit();
             this.SuspendLayout();
             // 
             // find_windows_bttn
@@ -153,15 +157,15 @@
             this.panel1.Size = new System.Drawing.Size(258, 160);
             this.panel1.TabIndex = 9;
             // 
-            // statusStrip1
+            // statusStrip
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 561);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1105, 22);
-            this.statusStrip1.TabIndex = 16;
-            this.statusStrip1.Text = "statusStrip1";
+            this.statusStrip.Location = new System.Drawing.Point(0, 561);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(1105, 22);
+            this.statusStrip.TabIndex = 16;
+            this.statusStrip.Text = "statusStrip1";
             // 
             // toolStripStatusLabel
             // 
@@ -323,110 +327,6 @@
             this.log.Size = new System.Drawing.Size(517, 56);
             this.log.TabIndex = 28;
             // 
-            // targets_dgv
-            // 
-            this.targets_dgv.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.targets_dgv.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
-            this.targets_dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.targets_dgv.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.name_clmn,
-            this.type_clmn,
-            this.coord_clmn,
-            this.percentage_clmn,
-            this.ideal_value_clmn,
-            this.Current_value_clmn,
-            this.correction_clmn,
-            this.last_change,
-            this.idle});
-            this.targets_dgv.ContextMenuStrip = this.contextMenu_otherDGV;
-            this.targets_dgv.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.targets_dgv.Location = new System.Drawing.Point(0, 0);
-            this.targets_dgv.Name = "targets_dgv";
-            this.targets_dgv.Size = new System.Drawing.Size(1091, 185);
-            this.targets_dgv.TabIndex = 27;
-            this.targets_dgv.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.other_targets_dgv_CellClick);
-            this.targets_dgv.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.targets_dgv_CellValueChanged);
-            this.targets_dgv.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.targets_dgv_DataError);
-            // 
-            // name_clmn
-            // 
-            this.name_clmn.DataPropertyName = "name_clmn";
-            this.name_clmn.HeaderText = "Name";
-            this.name_clmn.Name = "name_clmn";
-            this.name_clmn.Width = 60;
-            // 
-            // type_clmn
-            // 
-            this.type_clmn.DataPropertyName = "type_clmn";
-            this.type_clmn.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.Nothing;
-            this.type_clmn.HeaderText = "Type";
-            this.type_clmn.Name = "type_clmn";
-            this.type_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.type_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.type_clmn.Width = 56;
-            // 
-            // coord_clmn
-            // 
-            this.coord_clmn.DataPropertyName = "coord_clmn";
-            this.coord_clmn.HeaderText = "Coords of bar / Image positions";
-            this.coord_clmn.Name = "coord_clmn";
-            this.coord_clmn.Width = 126;
-            // 
-            // percentage_clmn
-            // 
-            this.percentage_clmn.DataPropertyName = "percentage_clmn";
-            this.percentage_clmn.HeaderText = "Similarity";
-            this.percentage_clmn.Name = "percentage_clmn";
-            this.percentage_clmn.ReadOnly = true;
-            this.percentage_clmn.Width = 72;
-            // 
-            // ideal_value_clmn
-            // 
-            this.ideal_value_clmn.DataPropertyName = "ideal_value_clmn";
-            this.ideal_value_clmn.HeaderText = "Ideal sample";
-            this.ideal_value_clmn.Name = "ideal_value_clmn";
-            this.ideal_value_clmn.ReadOnly = true;
-            this.ideal_value_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.ideal_value_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.ideal_value_clmn.Width = 84;
-            // 
-            // Current_value_clmn
-            // 
-            this.Current_value_clmn.DataPropertyName = "Current_value_clmn";
-            this.Current_value_clmn.HeaderText = "Current";
-            this.Current_value_clmn.Name = "Current_value_clmn";
-            this.Current_value_clmn.ReadOnly = true;
-            this.Current_value_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Current_value_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.Current_value_clmn.Width = 66;
-            // 
-            // correction_clmn
-            // 
-            this.correction_clmn.DataPropertyName = "correction_clmn";
-            this.correction_clmn.HeaderText = "PixelCorrection";
-            this.correction_clmn.Name = "correction_clmn";
-            this.correction_clmn.Width = 102;
-            // 
-            // last_change
-            // 
-            this.last_change.DataPropertyName = "last_change";
-            dataGridViewCellStyle1.Format = "dd/MM/yyyy HH:mm:ss.fff";
-            dataGridViewCellStyle1.NullValue = null;
-            this.last_change.DefaultCellStyle = dataGridViewCellStyle1;
-            this.last_change.HeaderText = "last_change";
-            this.last_change.Name = "last_change";
-            this.last_change.ReadOnly = true;
-            this.last_change.Visible = false;
-            this.last_change.Width = 90;
-            // 
-            // idle
-            // 
-            this.idle.DataPropertyName = "idle";
-            this.idle.HeaderText = "Idle";
-            this.idle.Name = "idle";
-            this.idle.ReadOnly = true;
-            this.idle.Width = 49;
-            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.panel4);
@@ -539,14 +439,157 @@
             this.nextuse_script_clmn.HeaderText = "Next Use after";
             this.nextuse_script_clmn.Name = "nextuse_script_clmn";
             // 
+            // backgroundWorker
+            // 
+            this.backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_DoWork);
+            this.backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_RunWorkerCompleted);
+            // 
+            // RefreshUpDown
+            // 
+            this.RefreshUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.RefreshUpDown.Location = new System.Drawing.Point(82, 562);
+            this.RefreshUpDown.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.RefreshUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.RefreshUpDown.Name = "RefreshUpDown";
+            this.RefreshUpDown.Size = new System.Drawing.Size(49, 20);
+            this.RefreshUpDown.TabIndex = 29;
+            this.RefreshUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.RefreshUpDown.ThousandsSeparator = true;
+            this.RefreshUpDown.Value = global::L2Runner.Properties.Settings.Default.RefreshTime;
+            this.RefreshUpDown.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(137, 564);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(62, 13);
+            this.label1.TabIndex = 30;
+            this.label1.Text = "Refreshrate";
+            // 
+            // targets_dgv
+            // 
+            this.targets_dgv.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.targets_dgv.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.targets_dgv.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.targets_dgv.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.name_clmn,
+            this.type_clmn,
+            this.coord_clmn,
+            this.percentage_clmn,
+            this.ideal_value_clmn,
+            this.Current_value_clmn,
+            this.correction_clmn,
+            this.last_change,
+            this.idle});
+            this.targets_dgv.ContextMenuStrip = this.contextMenu_otherDGV;
+            this.targets_dgv.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.targets_dgv.Location = new System.Drawing.Point(0, 0);
+            this.targets_dgv.Name = "targets_dgv";
+            this.targets_dgv.Size = new System.Drawing.Size(1091, 185);
+            this.targets_dgv.TabIndex = 27;
+            this.targets_dgv.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.other_targets_dgv_CellClick);
+            this.targets_dgv.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.targets_dgv_CellValueChanged);
+            this.targets_dgv.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.targets_dgv_DataError);
+            // 
+            // name_clmn
+            // 
+            this.name_clmn.DataPropertyName = "name_clmn";
+            this.name_clmn.HeaderText = "Name";
+            this.name_clmn.Name = "name_clmn";
+            this.name_clmn.Width = 60;
+            // 
+            // type_clmn
+            // 
+            this.type_clmn.DataPropertyName = "type_clmn";
+            this.type_clmn.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.Nothing;
+            this.type_clmn.HeaderText = "Type";
+            this.type_clmn.Name = "type_clmn";
+            this.type_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.type_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.type_clmn.Width = 56;
+            // 
+            // coord_clmn
+            // 
+            this.coord_clmn.DataPropertyName = "coord_clmn";
+            this.coord_clmn.HeaderText = "Coords of bar / Image positions";
+            this.coord_clmn.Name = "coord_clmn";
+            this.coord_clmn.Width = 126;
+            // 
+            // percentage_clmn
+            // 
+            this.percentage_clmn.DataPropertyName = "percentage_clmn";
+            this.percentage_clmn.HeaderText = "Similarity";
+            this.percentage_clmn.Name = "percentage_clmn";
+            this.percentage_clmn.ReadOnly = true;
+            this.percentage_clmn.Width = 72;
+            // 
+            // ideal_value_clmn
+            // 
+            this.ideal_value_clmn.DataPropertyName = "ideal_value_clmn";
+            this.ideal_value_clmn.HeaderText = "Ideal sample";
+            this.ideal_value_clmn.Name = "ideal_value_clmn";
+            this.ideal_value_clmn.ReadOnly = true;
+            this.ideal_value_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.ideal_value_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.ideal_value_clmn.Width = 84;
+            // 
+            // Current_value_clmn
+            // 
+            this.Current_value_clmn.DataPropertyName = "Current_value_clmn";
+            this.Current_value_clmn.HeaderText = "Current";
+            this.Current_value_clmn.Name = "Current_value_clmn";
+            this.Current_value_clmn.ReadOnly = true;
+            this.Current_value_clmn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Current_value_clmn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.Current_value_clmn.Width = 66;
+            // 
+            // correction_clmn
+            // 
+            this.correction_clmn.DataPropertyName = "correction_clmn";
+            this.correction_clmn.HeaderText = "PixelCorrection";
+            this.correction_clmn.Name = "correction_clmn";
+            this.correction_clmn.Width = 102;
+            // 
+            // last_change
+            // 
+            this.last_change.DataPropertyName = "last_change";
+            dataGridViewCellStyle1.Format = "dd/MM/yyyy HH:mm:ss.fff";
+            dataGridViewCellStyle1.NullValue = null;
+            this.last_change.DefaultCellStyle = dataGridViewCellStyle1;
+            this.last_change.HeaderText = "last_change";
+            this.last_change.Name = "last_change";
+            this.last_change.ReadOnly = true;
+            this.last_change.Visible = false;
+            this.last_change.Width = 90;
+            // 
+            // idle
+            // 
+            this.idle.DataPropertyName = "idle";
+            this.idle.HeaderText = "Idle";
+            this.idle.Name = "idle";
+            this.idle.ReadOnly = true;
+            this.idle.Width = 49;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1105, 583);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.RefreshUpDown);
             this.Controls.Add(this.tabControl1);
-            this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.statusStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormMain";
             this.Text = "L2 Runner";
@@ -555,8 +598,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxMain)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.contextMenu_otherDGV.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
@@ -569,10 +612,11 @@
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.clients_dgv)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_script)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.RefreshUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.targets_dgv)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -585,7 +629,7 @@
         private System.Windows.Forms.Button buttonTracking;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
         private System.Windows.Forms.Panel panel3;
         private MyDGrV targets_dgv;
@@ -623,6 +667,9 @@
         private System.Windows.Forms.SplitContainer splitContainerMain;
         private System.Windows.Forms.TrackBar trackBar1;
         private System.Windows.Forms.ToolStripMenuItem setSampleToFindToolStripMenuItem;
+        public System.ComponentModel.BackgroundWorker backgroundWorker;
+        private System.Windows.Forms.NumericUpDown RefreshUpDown;
+        private System.Windows.Forms.Label label1;
     }
 }
 

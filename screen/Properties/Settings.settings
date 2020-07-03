@@ -2,8 +2,8 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="L2Runner.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="RefreshTime" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0.5</Value>
+    <Setting Name="RefreshTime" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="LastWindow" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>

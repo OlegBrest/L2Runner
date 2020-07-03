@@ -25,10 +25,10 @@ namespace L2Runner.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.5")]
-        public double RefreshTime {
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public decimal RefreshTime {
             get {
-                return ((double)(this["RefreshTime"]));
+                return ((decimal)(this["RefreshTime"]));
             }
             set {
                 this["RefreshTime"] = value;
